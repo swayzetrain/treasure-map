@@ -1,0 +1,28 @@
+<h1>{{title}}</h1>
+ 
+<div>
+  <div>
+    <label>Map: </label>
+    <button (click)="generateTreasureMap()">Generate</button>
+  </div>
+</div>
+
+<body>
+  <table class='table'>
+    <tbody>
+      <tr *ngFor="let numArray of treasureMap">
+        <td *ngFor="let num of numArray">
+          <div class="main_content" *ngIf="num == 0">
+            <img src="assets/images/30x30_tree.png" alt="tree">
+          </div>
+          <div class="main_content" *ngIf="num == 1">
+            <img src="assets/images/30x30_sand.png" alt="sand">
+          </div>
+          <div class="main_content" *ngIf="num == 2">
+            <img src="assets/images/30x30_treasure.png" alt="treasure">
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</body>
