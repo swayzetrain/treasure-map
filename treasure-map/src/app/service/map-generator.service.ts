@@ -8,7 +8,7 @@ import { MapGeneratorRequest } from '../model/MapGeneratorRequest';
   })
   export class MapGeneratorService {
   
-    private URL = 'https://map-generator.swayzetrain.tech/procedural-map/v1/generate-map';
+    private URL = 'https://procedural-map.swayzetrain.tech/procedural-map/v1/generate-map';
   
     constructor(private httpClient: HttpClient) { }
   
