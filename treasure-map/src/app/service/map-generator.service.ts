@@ -21,7 +21,8 @@ import { MapGeneratorRequest } from '../model/MapGeneratorRequest';
             width: 75,
             maxTunnels: 450,
             maxLength: 20,
-            treasures: 10
+            treasures: 10,
+            generateSpawnCoordinate: true
         };
 
         return this.httpClient.post(this.URL, JSON.stringify(requestBody), {'headers':headers});

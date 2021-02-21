@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { MapGeneratorService } from './service/map-generator.service'
+import { MapGeneratorService } from './service/map-generator.service';
+import {Map} from './model/Map';
+import { CanvasDrawingService } from './service/canvas-drawing-service';
+import { ImageService } from './service/image-service';
+import { ImageCatalogEntry } from './model/ImageCatalog';
+import { MovementService } from './service/movement-service';
 
 @Component({
   selector: 'app-root',
@@ -9,89 +14,57 @@ import { MapGeneratorService } from './service/map-generator.service'
 export class AppComponent implements OnInit {
   title = 'treasure-map';
 
+  public map: Map;
   public treasureMap: string[][];
 
-  private images = {};
+  private imageCatalog: ImageCatalogEntry[];
 
-  constructor(private mapGeneratorService:MapGeneratorService) {}
+  constructor(private mapGeneratorService:MapGeneratorService, private canvasDrawingService:CanvasDrawingService, private imageService:ImageService, private movementService:MovementService) {}
 
-  ngOnInit() {
-    this.loadImages();
+  async ngOnInit() {
+    this.imageCatalog = await this.imageService.loadImages();
+    console.log(JSON.stringify(this.imageCatalog));
   }
 
   public generateTreasureMap() : void {
     this.mapGeneratorService.getGeneratedMapArray()
-      .subscribe(async data => {
-        this.treasureMap=data;
-        this.drawTreasureMap();
-        this.drawUser();
+      .subscribe(data => {
+        this.map=data;
+        this.canvasDrawingService.drawTreasureMap(this.map, this.imageCatalog);
+        this.canvasDrawingService.drawUser(this.map, this.imageCatalog);
       })
   }
 
-  public loadImages() {
-    var imagesLoaded = 0;
-    var imageSources = [
-      'assets/images/30x30_tree.png',
-      'assets/images/30x30_sand.png',
-      'assets/images/30x30_treasure.png',
-      'assets/images/30x30_billciper.png'
-    ];
-
-    for(var src in imageSources) {
-      console.log(src);
-      console.log(imageSources[src]);
-      this.images[src] = new Image();
-      this.images[src].src = imageSources[src];
-      this.images[src].onload = function() {
-        console.log('Loading image');
-        imagesLoaded++;
-
-        if(imageSources.length == this.imagesLoaded) {
-          console.log('Image Loading Complete!');
-        }
-      }
+  public movePlayer(event: any){
+    console.log(event);
+    switch(event.key) {
+      case 'w':
+        this.movementService.moveUp(this.map);
+        this.canvasDrawingService.clearCanvas(this.map);
+        this.canvasDrawingService.drawTreasureMap(this.map, this.imageCatalog);
+        this.canvasDrawingService.drawUser(this.map, this.imageCatalog);
+        break;
+      case 'a':
+        this.movementService.moveLeft(this.map);
+        this.canvasDrawingService.clearCanvas(this.map);
+        this.canvasDrawingService.drawTreasureMap(this.map, this.imageCatalog);
+        this.canvasDrawingService.drawUser(this.map, this.imageCatalog);
+        break;
+      case 's':
+        this.movementService.moveDown(this.map);
+        this.canvasDrawingService.clearCanvas(this.map);
+        this.canvasDrawingService.drawTreasureMap(this.map, this.imageCatalog);
+        this.canvasDrawingService.drawUser(this.map, this.imageCatalog);
+        break;
+      case 'd':
+        this.movementService.moveRight(this.map);
+        this.canvasDrawingService.clearCanvas(this.map);
+        this.canvasDrawingService.drawTreasureMap(this.map, this.imageCatalog);
+        this.canvasDrawingService.drawUser(this.map, this.imageCatalog);
+        break;
+      case ' ':
+        this.movementService.digForTreasure(this.map, this.imageCatalog, this.canvasDrawingService);
+        break;
     }
   }
-
-  public drawTreasureMap() {
-
-    var canvas = <HTMLCanvasElement> document.getElementById('treasureMapCanvas');
-
-    var height = this.treasureMap.length
-    var width = this.treasureMap[0].length
-
-    // draw the canvas
-    if (canvas.getContext) {
-      var ctx = canvas.getContext('2d');
-
-      ctx.canvas.width = width * 30;
-      ctx.canvas.height = height * 30;
-
-      console.log('Drawing');
-
-      for(let y = 0; y < this.treasureMap.length; y++) {
-        for(let x = 0; x < this.treasureMap[y].length; x++) {
-          if(this.treasureMap[y][x] == '0') {
-              ctx.drawImage(this.images[0], (x*30), (y*30));
-          } else if(this.treasureMap[y][x] == '1') {
-              ctx.drawImage(this.images[1], (x*30), (y*30));
-          } else if(this.treasureMap[y][x] == '2') {
-              ctx.drawImage(this.images[2], (x*30), (y*30));
-          }
-        }
-      }
-        
-      };
-    }
-
-    public drawUser() {
-      var canvas = <HTMLCanvasElement> document.getElementById('treasureMapCanvas');
-
-      if (canvas.getContext) {
-        var ctx = canvas.getContext('2d');
-
-        ctx.drawImage(this.images[3], 100, 100);
-
-      }
-    }
 }
