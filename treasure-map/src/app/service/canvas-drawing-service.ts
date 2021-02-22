@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { ITS_JUST_ANGULAR } from "@angular/core/src/r3_symbols";
 import { TileType } from "../enum/TileType";
 import { ImageCatalogEntry } from "../model/ImageCatalog";
 import { Map } from "../model/Map";
@@ -80,6 +81,11 @@ export class CanvasDrawingService {
 
       ctx.drawImage(imageCatalog.find(x => x.tileType == TileType.Treasure_Large).image, x, y);
     }
+  }
+
+  public focusCanvas() {
+    console.log("trying to focus.");
+    document.getElementById('treasureMapCanvas').focus();
   }
 
 }

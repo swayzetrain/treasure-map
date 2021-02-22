@@ -5,6 +5,8 @@ import { CanvasDrawingService } from './service/canvas-drawing-service';
 import { ImageService } from './service/image-service';
 import { ImageCatalogEntry } from './model/ImageCatalog';
 import { MovementService } from './service/movement-service';
+import { MapAlgorithm, MapAlgorithmMapping } from './enum/MapAlgorithm';
+import { MapGeneratorRequest } from './model/MapGeneratorRequest';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +19,16 @@ export class AppComponent implements OnInit {
   public map: Map;
   public treasureMap: string[][];
 
+  keys = Object.keys;
+  mapAlgorithmValues = MapAlgorithmMapping;
+
+  public mapAlgorithmInput = this.mapAlgorithmValues[0];
+  public mapHeightInput : number = 40;
+  public mapWidthInput : number = 75;
+  public maxTunnelsInput : number = 450;
+  public maxLengthInput : number = 20;
+  public treasuresInput : number = 10;
+
   private imageCatalog: ImageCatalogEntry[];
 
   constructor(private mapGeneratorService:MapGeneratorService, private canvasDrawingService:CanvasDrawingService, private imageService:ImageService, private movementService:MovementService) {}
@@ -27,11 +39,14 @@ export class AppComponent implements OnInit {
   }
 
   public generateTreasureMap() : void {
-    this.mapGeneratorService.getGeneratedMapArray()
+    var request : MapGeneratorRequest = this.mapGeneratorService.generateRequest(this.mapAlgorithmInput, this.mapHeightInput, this.mapWidthInput, this.maxTunnelsInput, this.maxLengthInput, this.treasuresInput);
+
+    this.mapGeneratorService.getGeneratedMapArray(request)
       .subscribe(data => {
         this.map=data;
         this.canvasDrawingService.drawTreasureMap(this.map, this.imageCatalog);
         this.canvasDrawingService.drawUser(this.map, this.imageCatalog);
+        this.canvasDrawingService.focusCanvas();
       })
   }
 
