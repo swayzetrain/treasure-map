@@ -1,28 +1,36 @@
-<h1>{{title}}</h1>
- 
-<div>
-  <div>
-    <label>Map: </label>
-    <button autofocus (click)="generateTreasureMap()">Generate Map</button>
-    <label>Map Algorithm:</label>
-    <select class="form-control" [(ngModel)]="mapAlgorithmInput" name="mapAlgorithmInput">
-      <option *ngFor="let mapAlgorithm of mapAlgorithmValues" [ngValue]="mapAlgorithm">{{mapAlgorithm.type}}</option>
-    </select>
-    <label>Map Height:</label>
-    <input [(ngModel)]="mapHeightInput" type="number" name="mapHeightInput" maxlength="3" value="40" />
-    <label>Map Width:</label>
-    <input [(ngModel)]="mapWidthInput" type="number" name="mapWidthInput" maxlength="3" value="75" />
-    <label *ngIf="mapAlgorithmInput.type == 'Random_Walk'">maxTunnels:</label>
-    <input [(ngModel)]="maxTunnelsInput" *ngIf="mapAlgorithmInput.type == 'Random_Walk'" type="number" name="maxTunnelsInput" maxlength="4" value="450" />
-    <label *ngIf="mapAlgorithmInput.type == 'Random_Walk'">maxLength:</label>
-    <input  [(ngModel)]="maxLengthInput" *ngIf="mapAlgorithmInput.type == 'Random_Walk'" type="number" name="maxLengthInput" maxlength="3" value="20" />
-    <label>Number of Treasures:</label>
-    <input  [(ngModel)]="treasuresInput"type="number" name="treasuresInput" maxlength="2" value="10" />
-    
-    
-  </div>
-</div>
-
+<head>
+  <style>
+    body {
+      background-image: url(../assets/images/Gravity_Falls_Background.jpg);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat; 
+    }
+    </style>
+</head>
 <body>
-  <canvas id="treasureMapCanvas" tabindex=0 style="border:1px solid" (keypress)="movePlayer($event)"></canvas>
+  <h1><div [innerHTML]="title"></div></h1>
+  <p style="font-size:18px;">Movement: <kbd>&#8593;</kbd> <kbd>&#8592;</kbd> <kbd>&#8595;</kbd> <kbd>&#8594;</kbd> <b> OR </b> <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>&emsp;Dig for Treasure: <kbd>Space</kbd></p>
+  <div id="inputs">
+      <label>Map: </label>
+      <button autofocus (click)="generateTreasureMap()">Generate Map</button>
+      <label>Map Algorithm:</label>
+      <select class="form-control" [(ngModel)]="mapAlgorithmInput" name="mapAlgorithmInput">
+        <option *ngFor="let mapAlgorithm of mapAlgorithmValues" [ngValue]="mapAlgorithm">{{mapAlgorithm.type}}</option>
+      </select>
+      <label>Map Height:</label>
+      <input [(ngModel)]="mapHeightInput" type="number" name="mapHeightInput" maxlength="3" value="40" />
+      <label>Map Width:</label>
+      <input [(ngModel)]="mapWidthInput" type="number" name="mapWidthInput" maxlength="3" value="75" />
+      <label *ngIf="mapAlgorithmInput.type == 'Random_Walk'">maxTunnels:</label>
+      <input [(ngModel)]="maxTunnelsInput" *ngIf="mapAlgorithmInput.type == 'Random_Walk'" type="number" name="maxTunnelsInput" maxlength="4" value="450" />
+      <label *ngIf="mapAlgorithmInput.type == 'Random_Walk'">maxLength:</label>
+      <input  [(ngModel)]="maxLengthInput" *ngIf="mapAlgorithmInput.type == 'Random_Walk'" type="number" name="maxLengthInput" maxlength="3" value="20" />
+      <!-- <label>Number of Treasures:</label>
+      <input  [(ngModel)]="treasuresInput"type="number" name="treasuresInput" maxlength="2" value="10" /> -->
+  </div>
+
+  <div style = "text-align:center;">
+    <canvas id="treasureMapCanvas" tabindex=0 style="border:1px solid" (keydown)="movePlayer($event)"></canvas>
+  </div>
 </body>

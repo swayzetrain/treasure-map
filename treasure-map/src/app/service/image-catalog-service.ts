@@ -1,11 +1,11 @@
 import { Injectable } from "@angular/core";
 import { TileType } from "../enum/TileType";
-import { ImageCatalogEntry } from "../model/ImageCatalog";
+import { ImageCatalogEntry } from "../model/ImageCatalogEntry";
 
 @Injectable({
     providedIn: 'root'
   })
-export class ImageService {
+export class ImageCatalogService {
 
     private imageCatalog : ImageCatalogEntry[] = [
         {id: 1, sourceLocation:'assets/images/30x30_tree.png', tileType: TileType.Wall, image: new Image() },
@@ -17,14 +17,11 @@ export class ImageService {
 
     public async loadImages() {
         const promiseArray = [];
-        var imagesToLoad = this.imageCatalog.length;
-        var imagesLoaded = 0;
     
         for(var entry in this.imageCatalog) {
             promiseArray.push(new Promise<void>(resolve => {
                 this.imageCatalog[entry].image.src = this.imageCatalog[entry].sourceLocation;
                 this.imageCatalog[entry].image.onload = function() {
-                    imagesLoaded++;
                     resolve();
                  };
             }))

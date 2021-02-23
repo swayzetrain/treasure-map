@@ -1,8 +1,10 @@
 import { Injectable } from "@angular/core";
 import { TileType } from "../enum/TileType";
-import { ImageCatalogEntry } from "../model/ImageCatalog";
-import {Map} from '../model/Map';
+import { ImageCatalogEntry } from "../model/ImageCatalogEntry";
+import { Map } from '../model/Map';
+import { TreasureCatalogEntry } from "../model/TreasureCatalogEntry";
 import { CanvasDrawingService } from "./canvas-drawing-service";
+import { TreasureService } from "./treasure-service";
 
 @Injectable({
     providedIn: 'root'
@@ -78,13 +80,16 @@ import { CanvasDrawingService } from "./canvas-drawing-service";
         }
     }
 
-    public digForTreasure(map:Map, imageCatalog:ImageCatalogEntry[], canvasDrawingService:CanvasDrawingService) {
+    public digForTreasure(map:Map, imageCatalog: ImageCatalogEntry[], treasureCatalog:TreasureCatalogEntry[], canvasDrawingService:CanvasDrawingService, treasureService:TreasureService) {
         var playerPostitionX = map.mapMetadata.spawnCoordinate.x;
         var playerPostitionY = map.mapMetadata.spawnCoordinate.y;
 
         if(map.mapData[playerPostitionY][playerPostitionX] == TileType.Path_Treasure.toString()) {
+            //Get Treasure to be drawn and remove from TreasureCatalog
+            var treasureCatalogEntry = treasureService.getTreasureFromCatalog();
+            
             // Draw opening Treasure Animation
-            canvasDrawingService.drawFoundTreasureLargeImage(map, imageCatalog);
+            canvasDrawingService.drawFoundTreasureLargeImage(map, imageCatalog, treasureCatalogEntry);
 
             // Set to just path value since treasure was claimed
             map.mapData[playerPostitionY][playerPostitionX] = TileType.Path.toString();

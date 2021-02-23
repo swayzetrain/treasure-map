@@ -1,13 +1,21 @@
 import { Injectable } from "@angular/core";
 import { ITS_JUST_ANGULAR } from "@angular/core/src/r3_symbols";
 import { TileType } from "../enum/TileType";
-import { ImageCatalogEntry } from "../model/ImageCatalog";
+import { ImageCatalogEntry } from "../model/ImageCatalogEntry";
 import { Map } from "../model/Map";
+import { TreasureCatalogEntry } from "../model/TreasureCatalogEntry";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CanvasDrawingService {
+
+  public clearDrawFocusCanvas(map: Map, imageCatalog: ImageCatalogEntry[]) {
+    this.clearCanvas(map);
+    this.drawTreasureMap(map, imageCatalog);
+    this.drawUser(map, imageCatalog);
+    this.focusCanvas();
+  }
 
   public drawTreasureMap(map: Map, imageCatalog: ImageCatalogEntry[]) {
 
@@ -23,7 +31,7 @@ export class CanvasDrawingService {
       ctx.canvas.width = width * 30;
       ctx.canvas.height = height * 30;
 
-      console.log('Drawing');
+      //console.log('Drawing');
 
       for (let y = 0; y < map.mapData.length; y++) {
         for (let x = 0; x < map.mapData[y].length; x++) {
@@ -67,24 +75,30 @@ export class CanvasDrawingService {
     }
   }
 
-  public drawFoundTreasureLargeImage(map:Map, imageCatalog: ImageCatalogEntry[]) {
+  public drawFoundTreasureLargeImage(map:Map, imageCatalog: ImageCatalogEntry[], treasureCatalogEntry: TreasureCatalogEntry) {
     var canvas = <HTMLCanvasElement>document.getElementById('treasureMapCanvas');
 
     if (canvas.getContext) {
       var ctx = canvas.getContext('2d');
 
-      var mapHeight = map.mapData.length * 30;
-      var mapWidth = map.mapData[0].length * 30;
+      var playerHeight = map.mapMetadata.spawnCoordinate.y * 30;
+      var playerWidth = map.mapMetadata.spawnCoordinate.x * 30;
 
-      var x = (mapWidth / 2) - (imageCatalog.find(x => x.tileType == TileType.Treasure_Large).image.width / 2);
-      var y = (mapHeight / 2) - (imageCatalog.find(x => x.tileType == TileType.Treasure_Large).image.height / 2);
-
-      ctx.drawImage(imageCatalog.find(x => x.tileType == TileType.Treasure_Large).image, x, y);
+      var x = (playerWidth + (imageCatalog.find(x => x.tileType == TileType.Player).image.width / 2)) - (treasureCatalogEntry.imageSmall.width / 2);
+      var y = 0;
+      
+      if(playerHeight >= treasureCatalogEntry.imageSmall.height) {
+        y = playerHeight - treasureCatalogEntry.imageSmall.height;
+      } else {
+        y = playerHeight + (imageCatalog.find(x => x.tileType == TileType.Player).image.height);
+      }
+      
+      ctx.drawImage(treasureCatalogEntry.imageSmall, x, y);
     }
   }
 
   public focusCanvas() {
-    console.log("trying to focus.");
+    //console.log("trying to focus.");
     document.getElementById('treasureMapCanvas').focus();
   }
 
