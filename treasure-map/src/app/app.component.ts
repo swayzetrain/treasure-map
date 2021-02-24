@@ -98,8 +98,7 @@ export class AppComponent implements OnInit {
         this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
         break;
       case 'p':
-        var entryNumber = Math.floor(Math.random() * (this.treasureCatalog.length));
-        console.log("Random number: " + entryNumber);
+        this.canvasDrawingService.drawZodiacLarge(this.map, this.treasureCatalog);
         break;
       case ' ':
         this.movementService.digForTreasure(this.map, this.imageCatalog, this.treasureCatalog, this.canvasDrawingService, this.treasureService);
