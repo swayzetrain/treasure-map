@@ -1,10 +1,14 @@
+import { TreasureCategory } from "../enum/TreasureCategory";
 import { TreasureType } from "../enum/TreasureType";
 
 export class TreasureCatalogEntry {
     treasureType: TreasureType;
-    imageSourceLarge: string;
+    treasureCategory: TreasureCategory; 
+    transparentImageLargeSource?: string;
+    imageSourceLarge?: string;
     imageSourceSmall: string;
-    imageLarge: HTMLImageElement;
+    transparentImageLarge?: HTMLImageElement;
+    imageLarge?: HTMLImageElement;
     imageSmall: HTMLImageElement;
-    Collected: boolean;
+    Collected?: boolean;
 }

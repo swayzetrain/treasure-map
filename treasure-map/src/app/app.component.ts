@@ -9,6 +9,7 @@ import { MapAlgorithmMapping } from './enum/MapAlgorithm';
 import { MapGeneratorRequest } from './model/MapGeneratorRequest';
 import { TreasureService } from './service/treasure-service';
 import { TreasureCatalogEntry } from './model/TreasureCatalogEntry';
+import { Coordinate } from './model/Coordinate';
 
 @Component({
   selector: 'app-root',
@@ -37,6 +38,8 @@ export class AppComponent implements OnInit {
   constructor(private mapGeneratorService:MapGeneratorService, private canvasDrawingService:CanvasDrawingService, private imageService:ImageCatalogService, private movementService:MovementService, private treasureService:TreasureService) {}
 
   async ngOnInit() {
+    this.treasureService.setNumberTreasuresOnMap(this.treasuresInput);
+    this.treasureService.setTreasuresFoundOnMap(0);
     document.body.classList.add('bg-img');
     this.imageCatalog = await this.imageService.loadImages();
     this.treasureCatalog = await this.treasureService.loadTreasureImages();
@@ -48,13 +51,16 @@ export class AppComponent implements OnInit {
     this.mapGeneratorService.getGeneratedMapArray(request)
       .subscribe(data => {
         this.map=data;
+        this.treasureService.setNumberTreasuresOnMap(this.treasuresInput);
+        this.treasureService.setTreasuresFoundOnMap(0);
         this.canvasDrawingService.drawTreasureMap(this.map, this.imageCatalog);
+        this.canvasDrawingService.drawPortal(this.map, this.imageCatalog);
         this.canvasDrawingService.drawUser(this.map, this.imageCatalog);
         this.canvasDrawingService.focusCanvas();
       })
   }
 
-  public movePlayer(event:KeyboardEvent){
+  public async movePlayer(event:KeyboardEvent){
     //console.log(event);
     switch(event.key) {
       case 'w':
@@ -101,7 +107,7 @@ export class AppComponent implements OnInit {
         this.canvasDrawingService.drawZodiacLarge(this.map, this.treasureCatalog);
         break;
       case ' ':
-        this.movementService.digForTreasure(this.map, this.imageCatalog, this.treasureCatalog, this.canvasDrawingService, this.treasureService);
+        await this.movementService.processAction(this.map, this.imageCatalog, this.canvasDrawingService, this.treasureService);
         break;
     }
   }

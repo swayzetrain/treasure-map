@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { MapGeneratorRequest } from '../model/MapGeneratorRequest';
+import { Map } from '../model/Map';
 
 import { MapAlgorithm, MapAlgorithmMapping } from '../enum/MapAlgorithm';
 
@@ -36,8 +37,21 @@ export class MapGeneratorService {
   public getGeneratedMapArray(requestBody: MapGeneratorRequest): Observable<any> {
 
     const headers = { 'content-type': 'application/json' }
+    var URL = 'https://procedural-map.swayzetrain.tech/procedural-map/v1/generate-map';
 
-    return this.httpClient.post(this.URL, JSON.stringify(requestBody), { 'headers': headers });
+    console.log(JSON.stringify(requestBody));
+
+    return this.httpClient.post(URL, JSON.stringify(requestBody), { 'headers': headers });
+  }
+
+  public getRandomPathCoordinate(map:Map) : Observable<any> {
+
+    const headers = { 'content-type': 'application/json' }
+    var URL = 'https://procedural-map.swayzetrain.tech/procedural-map/v1/randomization/path-coordinates';
+
+    var requestBody = map.mapData;
+
+    return this.httpClient.post(URL, JSON.stringify(requestBody), { 'headers': headers });
 
 
   }

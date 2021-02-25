@@ -15,6 +15,7 @@ export class CanvasDrawingService {
   public clearDrawFocusCanvas(map: Map, imageCatalog: ImageCatalogEntry[]) {
     this.clearCanvas(map);
     this.drawTreasureMap(map, imageCatalog);
+    this.drawPortal(map, imageCatalog);
     this.drawUser(map, imageCatalog);
     this.focusCanvas();
   }
@@ -39,7 +40,7 @@ export class CanvasDrawingService {
         for (let x = 0; x < map.mapData[y].length; x++) {
           if (map.mapData[y][x] == TileType.Wall.toString()) {
             ctx.drawImage(imageCatalog.find(x => x.tileType == TileType.Wall).image, (x * 30), (y * 30));
-          } else if (map.mapData[y][x] == TileType.Path.toString()) {
+          } else if (map.mapData[y][x] == TileType.Path.toString() || map.mapData[y][x] == TileType.Portal.toString()) {
             ctx.drawImage(imageCatalog.find(x => x.tileType == TileType.Path).image, (x * 30), (y * 30));
           } else if (map.mapData[y][x] == TileType.Path_Treasure.toString()) {
             ctx.drawImage(imageCatalog.find(x => x.tileType == TileType.Path_Treasure).image, (x * 30), (y * 30));
@@ -64,6 +65,22 @@ export class CanvasDrawingService {
     }
   }
 
+  public drawPortal(map: Map, imageCatalog: ImageCatalogEntry[]) {
+    if(map.mapMetadata.portalCoordinate != null) {
+      var canvas = <HTMLCanvasElement>document.getElementById('treasureMapCanvas');
+
+      if (canvas.getContext) {
+        var ctx = canvas.getContext('2d');
+
+        var x = map.mapMetadata.portalCoordinate.x * 30
+        var y = map.mapMetadata.portalCoordinate.y * 30
+
+        ctx.drawImage(imageCatalog.find(x => x.tileType == TileType.Portal).image, x, y);
+
+      }
+    }
+  }
+
   public clearCanvas(map: Map) {
     var canvas = <HTMLCanvasElement>document.getElementById('treasureMapCanvas');
 
@@ -77,7 +94,7 @@ export class CanvasDrawingService {
     }
   }
 
-  public drawFoundTreasureLargeImage(map: Map, imageCatalog: ImageCatalogEntry[], treasureCatalogEntry: TreasureCatalogEntry) {
+  public drawFoundTreasureImage(map: Map, imageCatalog: ImageCatalogEntry[], treasureCatalogEntry: TreasureCatalogEntry) {
     var canvas = <HTMLCanvasElement>document.getElementById('treasureMapCanvas');
 
     if (canvas.getContext) {
@@ -129,33 +146,62 @@ export class CanvasDrawingService {
 
       if(treasureCatalog.find(x => x.treasureType == TreasureType.SPECTACLES && x.Collected == true)) {
         ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.SPECTACLES).imageLarge), (mapCenter.x - (treasureCatalog.find(x => x.treasureType == TreasureType.SPECTACLES).imageLarge.width)), mapCenter.y - (zodiacHeight / 2));
+      } else {
+        ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.SPECTACLES).transparentImageLarge), (mapCenter.x - (treasureCatalog.find(x => x.treasureType == TreasureType.SPECTACLES).imageLarge.width)), mapCenter.y - (zodiacHeight / 2));
       }
+
       if(treasureCatalog.find(x => x.treasureType == TreasureType.QUESTION_MARK && x.Collected == true)) {
         ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.QUESTION_MARK).imageLarge), mapCenter.x, mapCenter.y - (zodiacHeight / 2));
+      } else {
+        ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.QUESTION_MARK).transparentImageLarge), mapCenter.x, mapCenter.y - (zodiacHeight / 2));
       }
+
       if(treasureCatalog.find(x => x.treasureType == TreasureType.STITCHED_HEART && x.Collected == true)) {
         ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.STITCHED_HEART).imageLarge), (mapCenter.x - ((treasureCatalog.find(x => x.treasureType == TreasureType.SPECTACLES).imageLarge.width) * 0.75) - (treasureCatalog.find(x => x.treasureType == TreasureType.STITCHED_HEART).imageLarge.width)), mapCenter.y - (zodiacHeight / 2) + ((treasureCatalog.find(x => x.treasureType == TreasureType.SPECTACLES).imageLarge.height) / 2));
+      } else {
+        ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.STITCHED_HEART).transparentImageLarge), (mapCenter.x - ((treasureCatalog.find(x => x.treasureType == TreasureType.SPECTACLES).imageLarge.width) * 0.75) - (treasureCatalog.find(x => x.treasureType == TreasureType.STITCHED_HEART).imageLarge.width)), mapCenter.y - (zodiacHeight / 2) + ((treasureCatalog.find(x => x.treasureType == TreasureType.SPECTACLES).imageLarge.height) / 2));
       }
+
       if(treasureCatalog.find(x => x.treasureType == TreasureType.BAG_OF_ICE && x.Collected == true)) {
         ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.BAG_OF_ICE).imageLarge), (mapCenter.x + ((treasureCatalog.find(x => x.treasureType == TreasureType.QUESTION_MARK).imageLarge.width) * 0.75)), mapCenter.y - (zodiacHeight / 2) + ((treasureCatalog.find(x => x.treasureType == TreasureType.QUESTION_MARK).imageLarge.height) / 2));
+      } else {
+        ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.BAG_OF_ICE).transparentImageLarge), (mapCenter.x + ((treasureCatalog.find(x => x.treasureType == TreasureType.QUESTION_MARK).imageLarge.width) * 0.75)), mapCenter.y - (zodiacHeight / 2) + ((treasureCatalog.find(x => x.treasureType == TreasureType.QUESTION_MARK).imageLarge.height) / 2));
       }
+
       if(treasureCatalog.find(x => x.treasureType == TreasureType.SHOOTING_STAR && x.Collected == true)) {
         ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.SHOOTING_STAR).imageLarge), (mapCenter.x - ((treasureCatalog.find(x => x.treasureType == TreasureType.SPECTACLES).imageLarge.width) * 0.75) - ((treasureCatalog.find(x => x.treasureType == TreasureType.STITCHED_HEART).imageLarge.width) * 0.5) - (treasureCatalog.find(x => x.treasureType == TreasureType.SHOOTING_STAR).imageLarge.width)), mapCenter.y - ((treasureCatalog.find(x => x.treasureType == TreasureType.SHOOTING_STAR).imageLarge.height) / 2));
+      } else {
+        ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.SHOOTING_STAR).transparentImageLarge), (mapCenter.x - ((treasureCatalog.find(x => x.treasureType == TreasureType.SPECTACLES).imageLarge.width) * 0.75) - ((treasureCatalog.find(x => x.treasureType == TreasureType.STITCHED_HEART).imageLarge.width) * 0.5) - (treasureCatalog.find(x => x.treasureType == TreasureType.SHOOTING_STAR).imageLarge.width)), mapCenter.y - ((treasureCatalog.find(x => x.treasureType == TreasureType.SHOOTING_STAR).imageLarge.height) / 2));
       }
+
       if(treasureCatalog.find(x => x.treasureType == TreasureType.CRESENT && x.Collected == true)) {
         ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.CRESENT).imageLarge), (mapCenter.x + ((treasureCatalog.find(x => x.treasureType == TreasureType.QUESTION_MARK).imageLarge.width) * 0.75) + ((treasureCatalog.find(x => x.treasureType == TreasureType.BAG_OF_ICE).imageLarge.width) * 0.5)), mapCenter.y - ((treasureCatalog.find(x => x.treasureType == TreasureType.CRESENT).imageLarge.height) / 2));
+      } else {
+        ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.CRESENT).transparentImageLarge), (mapCenter.x + ((treasureCatalog.find(x => x.treasureType == TreasureType.QUESTION_MARK).imageLarge.width) * 0.75) + ((treasureCatalog.find(x => x.treasureType == TreasureType.BAG_OF_ICE).imageLarge.width) * 0.5)), mapCenter.y - ((treasureCatalog.find(x => x.treasureType == TreasureType.CRESENT).imageLarge.height) / 2));
       }
+
       if(treasureCatalog.find(x => x.treasureType == TreasureType.LLAMA && x.Collected == true)) {
         ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.LLAMA).imageLarge), (mapCenter.x - ((treasureCatalog.find(x => x.treasureType == TreasureType.SIX_FINGERED_HAND).imageLarge.width) * 0.75) - (treasureCatalog.find(x => x.treasureType == TreasureType.LLAMA).imageLarge.width)), mapCenter.y + ((treasureCatalog.find(x => x.treasureType == TreasureType.SHOOTING_STAR).imageLarge.height) * 0.4));
+      } else {
+        ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.LLAMA).transparentImageLarge), (mapCenter.x - ((treasureCatalog.find(x => x.treasureType == TreasureType.SIX_FINGERED_HAND).imageLarge.width) * 0.75) - (treasureCatalog.find(x => x.treasureType == TreasureType.LLAMA).imageLarge.width)), mapCenter.y + ((treasureCatalog.find(x => x.treasureType == TreasureType.SHOOTING_STAR).imageLarge.height) * 0.4));
       }
+
       if(treasureCatalog.find(x => x.treasureType == TreasureType.PINE_TREE && x.Collected == true)) {
         ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.PINE_TREE).imageLarge), (mapCenter.x + ((treasureCatalog.find(x => x.treasureType == TreasureType.PENTACLE).imageLarge.width) * 0.75)), mapCenter.y + ((treasureCatalog.find(x => x.treasureType == TreasureType.CRESENT).imageLarge.height) * 0.4));
+      } else {
+        ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.PINE_TREE).transparentImageLarge), (mapCenter.x + ((treasureCatalog.find(x => x.treasureType == TreasureType.PENTACLE).imageLarge.width) * 0.75)), mapCenter.y + ((treasureCatalog.find(x => x.treasureType == TreasureType.CRESENT).imageLarge.height) * 0.4));
       }
+
       if(treasureCatalog.find(x => x.treasureType == TreasureType.SIX_FINGERED_HAND && x.Collected == true)) {
         ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.SIX_FINGERED_HAND).imageLarge), (mapCenter.x - (treasureCatalog.find(x => x.treasureType == TreasureType.SIX_FINGERED_HAND).imageLarge.width)), mapCenter.y + (zodiacHeight / 2) - (treasureCatalog.find(x => x.treasureType == TreasureType.SIX_FINGERED_HAND).imageLarge.height));
+      } else {
+        ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.SIX_FINGERED_HAND).transparentImageLarge), (mapCenter.x - (treasureCatalog.find(x => x.treasureType == TreasureType.SIX_FINGERED_HAND).imageLarge.width)), mapCenter.y + (zodiacHeight / 2) - (treasureCatalog.find(x => x.treasureType == TreasureType.SIX_FINGERED_HAND).imageLarge.height));
       }
+
       if(treasureCatalog.find(x => x.treasureType == TreasureType.PENTACLE && x.Collected == true)) {
         ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.PENTACLE).imageLarge), mapCenter.x, mapCenter.y + (zodiacHeight / 2) - (treasureCatalog.find(x => x.treasureType == TreasureType.PENTACLE).imageLarge.height));
+      } else {
+        ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.PENTACLE).transparentImageLarge), mapCenter.x, mapCenter.y + (zodiacHeight / 2) - (treasureCatalog.find(x => x.treasureType == TreasureType.PENTACLE).imageLarge.height));
       }
     }
   }

@@ -10,4 +10,5 @@ export class MapGeneratorRequest {
     seed?: number;
     generateSpawnCoordinate: boolean;
     spawnCoordinate?: Coordinate;
+    portalCoordinate?: Coordinate;
 }

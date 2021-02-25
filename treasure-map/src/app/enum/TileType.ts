@@ -4,4 +4,5 @@ export enum TileType {
     Path_Treasure = 2,
     Player = 3,
     Treasure_Large = 4,
+    Portal = 5
 }

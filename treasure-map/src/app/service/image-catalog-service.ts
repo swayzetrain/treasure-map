@@ -8,11 +8,11 @@ import { ImageCatalogEntry } from "../model/ImageCatalogEntry";
 export class ImageCatalogService {
 
     private imageCatalog : ImageCatalogEntry[] = [
-        {id: 1, sourceLocation:'assets/images/30x30_tree.png', tileType: TileType.Wall, image: new Image() },
-        {id: 2, sourceLocation:'assets/images/30x30_sand.png', tileType: TileType.Path, image: new Image() },
-        {id: 3, sourceLocation:'assets/images/30x30_treasure.png', tileType: TileType.Path_Treasure, image: new Image() },
-        {id: 4, sourceLocation:'assets/images/30x30_billcipher.png', tileType: TileType.Player, image: new Image() },
-        {id: 5, sourceLocation:'assets/images/1000x550_treasure1_large.png', tileType: TileType.Treasure_Large, image: new Image() }
+        {id: 1, sourceLocation:'assets/images/30x30_tree_grass.png', tileType: TileType.Wall, image: new Image()},
+        {id: 2, sourceLocation:'assets/images/30x30_sand.png', tileType: TileType.Path, image: new Image()},
+        {id: 3, sourceLocation:'assets/images/30x30_treasure.png', tileType: TileType.Path_Treasure, image: new Image()},
+        {id: 4, sourceLocation:'assets/images/30x30_billcipher.png', tileType: TileType.Player, image: new Image()},
+        {id: 5, sourceLocation:'assets/images/30x30_Portal_teal.png', tileType: TileType.Portal, image: new Image()}
     ];
 
     public async loadImages() {
