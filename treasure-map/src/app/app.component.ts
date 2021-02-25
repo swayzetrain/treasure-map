@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import {MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MapGeneratorService } from './service/map-generator.service';
 import { Map } from './model/Map';
 import { CanvasDrawingService } from './service/canvas-drawing-service';
@@ -9,7 +10,7 @@ import { MapAlgorithmMapping } from './enum/MapAlgorithm';
 import { MapGeneratorRequest } from './model/MapGeneratorRequest';
 import { TreasureService } from './service/treasure-service';
 import { TreasureCatalogEntry } from './model/TreasureCatalogEntry';
-import { Coordinate } from './model/Coordinate';
+import { IntroDialogBodyComponent } from './intro-dialog-body/intro-dialog-body.component';
 
 @Component({
   selector: 'app-root',
@@ -35,7 +36,7 @@ export class AppComponent implements OnInit {
   private imageCatalog: ImageCatalogEntry[];
   private treasureCatalog: TreasureCatalogEntry[];
 
-  constructor(private mapGeneratorService:MapGeneratorService, private canvasDrawingService:CanvasDrawingService, private imageService:ImageCatalogService, private movementService:MovementService, private treasureService:TreasureService) {}
+  constructor(private mapGeneratorService:MapGeneratorService, private canvasDrawingService:CanvasDrawingService, private imageService:ImageCatalogService, private movementService:MovementService, private treasureService:TreasureService, private introDialog: MatDialog) {}
 
   async ngOnInit() {
     this.canvasDrawingService.drawLoadingCanvas(this.mapWidthInput, this.mapHeightInput);
@@ -44,7 +45,12 @@ export class AppComponent implements OnInit {
     document.body.classList.add('bg-img');
     this.imageCatalog = await this.imageService.loadImages();
     this.treasureCatalog = await this.treasureService.loadTreasureImages();
+    this.openDialog();
     this.generateTreasureMap();
+  }
+
+  openDialog() {
+    this.introDialog.open(IntroDialogBodyComponent, {panelClass: 'custom-modalbox'});
   }
 
   public generateTreasureMap() : void {
@@ -64,8 +70,12 @@ export class AppComponent implements OnInit {
 
   public async movePlayer(event:KeyboardEvent){
     //console.log(event);
-    switch(event.key) {
+    switch (event.key) {
       case 'w':
+        this.movementService.moveUp(this.map);
+        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+        break;
+      case 'W':
         this.movementService.moveUp(this.map);
         this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
         break;
@@ -73,11 +83,23 @@ export class AppComponent implements OnInit {
         this.movementService.moveLeft(this.map);
         this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
         break;
+      case 'A':
+        this.movementService.moveLeft(this.map);
+        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+        break;
       case 's':
         this.movementService.moveDown(this.map);
         this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
         break;
+      case 'S':
+        this.movementService.moveDown(this.map);
+        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+        break;
       case 'd':
+        this.movementService.moveRight(this.map);
+        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+        break;
+      case 'D':
         this.movementService.moveRight(this.map);
         this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
         break;
@@ -106,6 +128,9 @@ export class AppComponent implements OnInit {
         this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
         break;
       case 'p':
+        this.canvasDrawingService.drawProgressChart(this.map, this.treasureCatalog);
+        break;
+      case 'P':
         this.canvasDrawingService.drawProgressChart(this.map, this.treasureCatalog);
         break;
       case ' ':
