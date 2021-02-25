@@ -38,6 +38,7 @@ export class AppComponent implements OnInit {
   constructor(private mapGeneratorService:MapGeneratorService, private canvasDrawingService:CanvasDrawingService, private imageService:ImageCatalogService, private movementService:MovementService, private treasureService:TreasureService) {}
 
   async ngOnInit() {
+    this.canvasDrawingService.drawLoadingCanvas(this.mapWidthInput, this.mapHeightInput);
     this.treasureService.setNumberTreasuresOnMap(this.treasuresInput);
     this.treasureService.setTreasuresFoundOnMap(0);
     document.body.classList.add('bg-img');
@@ -53,6 +54,7 @@ export class AppComponent implements OnInit {
         this.map=data;
         this.treasureService.setNumberTreasuresOnMap(this.treasuresInput);
         this.treasureService.setTreasuresFoundOnMap(0);
+        this.treasureService.resetTreasuresCollected(this.treasureCatalog);
         this.canvasDrawingService.drawTreasureMap(this.map, this.imageCatalog);
         this.canvasDrawingService.drawPortal(this.map, this.imageCatalog);
         this.canvasDrawingService.drawUser(this.map, this.imageCatalog);
@@ -104,7 +106,7 @@ export class AppComponent implements OnInit {
         this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
         break;
       case 'p':
-        this.canvasDrawingService.drawZodiacLarge(this.map, this.treasureCatalog);
+        this.canvasDrawingService.drawProgressChart(this.map, this.treasureCatalog);
         break;
       case ' ':
         await this.movementService.processAction(this.map, this.imageCatalog, this.canvasDrawingService, this.treasureService);
