@@ -45,11 +45,11 @@ export class AppComponent implements OnInit {
     document.body.classList.add('bg-img');
     this.imageCatalog = await this.imageService.loadImages();
     this.treasureCatalog = await this.treasureService.loadTreasureImages();
-    this.openDialog();
+    this.openIntroDialog();
     this.generateTreasureMap();
   }
 
-  openDialog() {
+  openIntroDialog() {
     this.introDialog.open(IntroDialogBodyComponent, {panelClass: 'custom-modalbox'});
   }
 
@@ -135,6 +135,12 @@ export class AppComponent implements OnInit {
         break;
       case ' ':
         await this.movementService.processAction(this.map, this.imageCatalog, this.canvasDrawingService, this.treasureService);
+
+        if(this.treasureService.checkIfAllZodiacsCollected() == true) {
+          console.log("Starting ending sequence");
+        } else {
+          console.log("Still more Zodiacs to collect.");
+        }
         break;
     }
   }

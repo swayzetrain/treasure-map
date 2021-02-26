@@ -135,8 +135,6 @@ export class CanvasDrawingService {
   }
 
   public drawProgressChart(map: Map, treasureCatalog: TreasureCatalogEntry[]) {
-    console.log(treasureCatalog);
-
     var mapCenter: Coordinate = new Coordinate();
     mapCenter.x = (map.mapData[0].length * 30) / 2;
     mapCenter.y = (map.mapData.length * 30) / 2;

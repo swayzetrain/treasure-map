@@ -39,8 +39,6 @@ export class MapGeneratorService {
     const headers = { 'content-type': 'application/json' }
     var URL = 'https://procedural-map.swayzetrain.tech/procedural-map/v1/generate-map';
 
-    console.log(JSON.stringify(requestBody));
-
     return this.httpClient.post(URL, JSON.stringify(requestBody), { 'headers': headers });
   }
 

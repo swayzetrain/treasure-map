@@ -87,8 +87,14 @@ public resetTreasuresCollected(treasureCatalog: TreasureCatalogEntry[]) {
     for(var treasure in treasureCatalog) {
         treasureCatalog[treasure].Collected = false;
     }
+}
 
-    console.log("Treasure Catalog after reset: " + JSON.stringify(treasureCatalog));
+public checkIfAllZodiacsCollected() : boolean {
+    if((this.treasureCatalog.find(x => x.treasureCategory == TreasureCategory.ZODIAC && x.Collected == false)) != undefined) {
+        return false;
+    }
+
+    return true;
 }
 
 public async loadTreasureImages() {
