@@ -1,8 +1,10 @@
 import { Injectable } from "@angular/core";
 import { ITS_JUST_ANGULAR } from "@angular/core/src/r3_symbols";
+import { PostProcessedTileType } from "../enum/PostProcessedTileType";
 import { TileType } from "../enum/TileType";
 import { TreasureType } from "../enum/TreasureType";
 import { Coordinate } from "../model/Coordinate";
+import { EndingSequenceCatalogEntry } from "../model/EndingSequenceCatalogEntry";
 import { ImageCatalogEntry } from "../model/ImageCatalogEntry";
 import { Map } from "../model/Map";
 import { TreasureCatalogEntry } from "../model/TreasureCatalogEntry";
@@ -15,6 +17,7 @@ export class CanvasDrawingService {
   public clearDrawFocusCanvas(map: Map, imageCatalog: ImageCatalogEntry[]) {
     this.clearCanvas(map);
     this.drawTreasureMap(map, imageCatalog);
+    this.drawTreasures(map, imageCatalog);
     this.drawPortal(map, imageCatalog);
     this.drawUser(map, imageCatalog);
     this.focusCanvas();
@@ -52,21 +55,69 @@ export class CanvasDrawingService {
       ctx.canvas.width = width * 30;
       ctx.canvas.height = height * 30;
 
-      //console.log('Drawing');
+      console.log('Drawing');
 
       for (let y = 0; y < map.mapData.length; y++) {
         for (let x = 0; x < map.mapData[y].length; x++) {
-          if (map.mapData[y][x] == TileType.Wall.toString()) {
-            ctx.drawImage(imageCatalog.find(x => x.tileType == TileType.Wall).image, (x * 30), (y * 30));
-          } else if (map.mapData[y][x] == TileType.Path.toString() || map.mapData[y][x] == TileType.Portal.toString()) {
-            ctx.drawImage(imageCatalog.find(x => x.tileType == TileType.Path).image, (x * 30), (y * 30));
-          } else if (map.mapData[y][x] == TileType.Path_Treasure.toString()) {
-            ctx.drawImage(imageCatalog.find(x => x.tileType == TileType.Path_Treasure).image, (x * 30), (y * 30));
+
+          if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.SIMPLE_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.SIMPLE_WALL).image, (x * 30), (y * 30));
+          } else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.LEFT_UPPER_GROUP_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.LEFT_UPPER_GROUP_WALL).image, (x * 30), (y * 30));
+          }  else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.MID_UPPER_GROUP_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.MID_UPPER_GROUP_WALL).image, (x * 30), (y * 30));
+          }  else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.RIGHT_UPPER_GROUP_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.RIGHT_UPPER_GROUP_WALL).image, (x * 30), (y * 30));
+          }  else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.LEFT_MIDDLE_GROUP_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.LEFT_MIDDLE_GROUP_WALL).image, (x * 30), (y * 30));
+          }  else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.MID_MIDDLE_GROUP_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.MID_MIDDLE_GROUP_WALL).image, (x * 30), (y * 30));
+          }  else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.MID_MIDDLE_NO_UPPER_LEFT_GROUP_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.MID_MIDDLE_NO_UPPER_LEFT_GROUP_WALL).image, (x * 30), (y * 30));
+          }  else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.MID_MIDDLE_NO_UPPER_RIGHT_GROUP_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.MID_MIDDLE_NO_UPPER_RIGHT_GROUP_WALL).image, (x * 30), (y * 30));
+          }  else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.MID_MIDDLE_NO_BOTTOM_LEFT_GROUP_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.MID_MIDDLE_NO_BOTTOM_LEFT_GROUP_WALL).image, (x * 30), (y * 30));
+          }  else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.MID_MIDDLE_NO_BOTTOM_RIGHT_GROUP_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.MID_MIDDLE_NO_BOTTOM_RIGHT_GROUP_WALL).image, (x * 30), (y * 30));
+          }  else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.RIGHT_MIDDLE_GROUP_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.RIGHT_MIDDLE_GROUP_WALL).image, (x * 30), (y * 30));
+          }  else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.LEFT_BOTTOM_GROUP_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.LEFT_BOTTOM_GROUP_WALL).image, (x * 30), (y * 30));
+          }  else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.MID_BOTTOM_GROUP_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.MID_BOTTOM_GROUP_WALL).image, (x * 30), (y * 30));
+          }  else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.RIGHT_BOTTOM_GROUP_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.RIGHT_BOTTOM_GROUP_WALL).image, (x * 30), (y * 30));
+          }  else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.BOTTOM_LEFT_UPPER_RIGHT_GROUP_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.BOTTOM_LEFT_UPPER_RIGHT_GROUP_WALL).image, (x * 30), (y * 30));
+          }  else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.UPPER_LEFT_BOTTOM_RIGHT_GROUP_WALL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.UPPER_LEFT_BOTTOM_RIGHT_GROUP_WALL).image, (x * 30), (y * 30));
+          } else if (map.mapData[y][x].postProcessedTileType == PostProcessedTileType.PATH || map.mapData[y][x].postProcessedTileType == PostProcessedTileType.PORTAL) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.PATH).image, (x * 30), (y * 30));
+          } else if(map.mapData[y][x].postProcessedTileType == PostProcessedTileType.PATH_DUG) {
+            ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.PATH_DUG).image, (x * 30), (y * 30));
           }
         }
       }
 
     };
+  }
+
+  public drawTreasures(map: Map, imageCatalog: ImageCatalogEntry[]) {
+    var canvas = <HTMLCanvasElement>document.getElementById('treasureMapCanvas');
+
+    if (canvas.getContext) {
+      var ctx = canvas.getContext('2d');
+
+      for(var entry in map.mapMetadata.treasureSpawnPoints) {
+
+        //console.log("Drawing Treasure");
+        var x = map.mapMetadata.treasureSpawnPoints[entry].x * 30
+        var y = map.mapMetadata.treasureSpawnPoints[entry].y * 30
+
+        ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.TREASURE).image, x, y);
+      }
+    }
   }
 
   public drawUser(map: Map, imageCatalog: ImageCatalogEntry[]) {
@@ -75,10 +126,10 @@ export class CanvasDrawingService {
     if (canvas.getContext) {
       var ctx = canvas.getContext('2d');
 
-      var x = map.mapMetadata.spawnCoordinate.x * 30
-      var y = map.mapMetadata.spawnCoordinate.y * 30
+      var x = map.mapMetadata.playerSpawnPoint.x * 30
+      var y = map.mapMetadata.playerSpawnPoint.y * 30
 
-      ctx.drawImage(imageCatalog.find(x => x.tileType == TileType.Player).image, x, y);
+      ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.PLAYER).image, x, y);
 
     }
   }
@@ -93,7 +144,7 @@ export class CanvasDrawingService {
         var x = map.mapMetadata.portalCoordinate.x * 30
         var y = map.mapMetadata.portalCoordinate.y * 30
 
-        ctx.drawImage(imageCatalog.find(x => x.tileType == TileType.Portal).image, x, y);
+        ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.PORTAL).image, x, y);
 
       }
     }
@@ -118,16 +169,16 @@ export class CanvasDrawingService {
     if (canvas.getContext) {
       var ctx = canvas.getContext('2d');
 
-      var playerHeight = map.mapMetadata.spawnCoordinate.y * 30;
-      var playerWidth = map.mapMetadata.spawnCoordinate.x * 30;
+      var playerHeight = map.mapMetadata.playerSpawnPoint.y * 30;
+      var playerWidth = map.mapMetadata.playerSpawnPoint.x * 30;
 
-      var x = (playerWidth + (imageCatalog.find(x => x.tileType == TileType.Player).image.width / 2)) - (treasureCatalogEntry.imageSmall.width / 2);
+      var x = (playerWidth + (imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.PLAYER).image.width / 2)) - (treasureCatalogEntry.imageSmall.width / 2);
       var y = 0;
 
       if (playerHeight >= treasureCatalogEntry.imageSmall.height) {
         y = playerHeight - treasureCatalogEntry.imageSmall.height;
       } else {
-        y = playerHeight + (imageCatalog.find(x => x.tileType == TileType.Player).image.height);
+        y = playerHeight + (imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.PLAYER).image.height);
       }
 
       ctx.drawImage(treasureCatalogEntry.imageSmall, x, y);
@@ -307,6 +358,23 @@ export class CanvasDrawingService {
       } else {
         ctx.drawImage((treasureCatalog.find(x => x.treasureType == TreasureType.WENDY).transparentImageLarge), mapCenter.x + (zodiacWidth / 2) + (uncommonWidth / 2) - uncommonWidthPadding - (treasureCatalog.find(x => x.treasureType == TreasureType.WENDY).transparentImageLarge.width), mapCenter.y + (uncommonHeightPadding * 4.5) - ((treasureCatalog.find(x => x.treasureType == TreasureType.WENDY).transparentImageLarge.height / 2)));
       }
+    }
+  }
+
+  public drawEndingSequenceScene(endingSequenceImageCatalogEntry : EndingSequenceCatalogEntry) {
+    var canvas = <HTMLCanvasElement>document.getElementById('treasureMapCanvas');
+
+    if (canvas.getContext) {
+      var ctx = canvas.getContext('2d');
+
+      ctx.drawImage(endingSequenceImageCatalogEntry.image, ((canvas.width / 2) - endingSequenceImageCatalogEntry.image.width / 2), ((canvas.height / 2) - endingSequenceImageCatalogEntry.image.height / 2));
+
+      ctx.font = endingSequenceImageCatalogEntry.storyTextFontStyle;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'white';
+      ctx.fillText(endingSequenceImageCatalogEntry.storyText, ((canvas.width / 2) - (ctx.measureText(endingSequenceImageCatalogEntry.storyText).width) / 2), ((canvas.height / 2) + (endingSequenceImageCatalogEntry.image.height / 2)) - parseInt(ctx.font));
+
     }
   }
 

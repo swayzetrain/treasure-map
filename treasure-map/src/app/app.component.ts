@@ -11,6 +11,8 @@ import { MapGeneratorRequest } from './model/MapGeneratorRequest';
 import { TreasureService } from './service/treasure-service';
 import { TreasureCatalogEntry } from './model/TreasureCatalogEntry';
 import { IntroDialogBodyComponent } from './intro-dialog-body/intro-dialog-body.component';
+import { EndingSequenceCatalogEntry } from './model/EndingSequenceCatalogEntry';
+import { Coordinate } from './model/Coordinate';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +22,8 @@ import { IntroDialogBodyComponent } from './intro-dialog-body/intro-dialog-body.
 export class AppComponent implements OnInit {
   title = 'Help Bill Cipher Find the <i>Amulet of Protection</i>';
 
+  public endingSequenceActive: boolean = false;
+  public endingSequenceSceneNumber: number = 0;
   public map: Map;
   public treasureMap: string[][];
 
@@ -34,6 +38,7 @@ export class AppComponent implements OnInit {
   public treasuresInput : number = 10;
 
   private imageCatalog: ImageCatalogEntry[];
+  private endingSequenceImageCatalog : EndingSequenceCatalogEntry[];
   private treasureCatalog: TreasureCatalogEntry[];
 
   constructor(private mapGeneratorService:MapGeneratorService, private canvasDrawingService:CanvasDrawingService, private imageService:ImageCatalogService, private movementService:MovementService, private treasureService:TreasureService, private introDialog: MatDialog) {}
@@ -44,104 +49,165 @@ export class AppComponent implements OnInit {
     this.treasureService.setTreasuresFoundOnMap(0);
     document.body.classList.add('bg-img');
     this.imageCatalog = await this.imageService.loadImages();
+    this.endingSequenceImageCatalog = await this.imageService.loadEndingSequenceImages();
     this.treasureCatalog = await this.treasureService.loadTreasureImages();
     this.openIntroDialog();
-    this.generateTreasureMap();
+    this.map = await this.generateTreasureMap();
+    this.map.mapMetadata.playerSpawnPoint = await this.generatePlayerStartingLocation();
+    this.map.mapMetadata.treasureSpawnPoints = await this.generateTreasureLocations();
+    this.treasureService.setNumberTreasuresOnMap(this.treasuresInput);
+    this.treasureService.setTreasuresFoundOnMap(0);
+    this.treasureService.resetTreasuresCollected(this.treasureCatalog);
+    this.canvasDrawingService.drawTreasureMap(this.map, this.imageCatalog);
+    this.canvasDrawingService.drawTreasures(this.map, this.imageCatalog);
+    this.canvasDrawingService.drawPortal(this.map, this.imageCatalog);
+    this.canvasDrawingService.drawUser(this.map, this.imageCatalog);
+    this.canvasDrawingService.focusCanvas();
   }
 
   openIntroDialog() {
     this.introDialog.open(IntroDialogBodyComponent, {panelClass: 'custom-modalbox'});
   }
 
-  public generateTreasureMap() : void {
-    var request : MapGeneratorRequest = this.mapGeneratorService.generateRequest(this.mapAlgorithmInput, this.mapHeightInput, this.mapWidthInput, this.maxTunnelsInput, this.maxLengthInput, this.treasuresInput);
+  public async generateTreasureMap() {
+    var request : MapGeneratorRequest = this.mapGeneratorService.generateRequest(this.mapAlgorithmInput, this.mapHeightInput, this.mapWidthInput, this.maxTunnelsInput, this.maxLengthInput);
+    const promiseArray = [];
+    promiseArray.push(new Promise<Map>(resolve => {
     this.mapGeneratorService.getGeneratedMapArray(request)
-      .subscribe(data => {
+    .subscribe(data => {
         this.map=data;
-        this.treasureService.setNumberTreasuresOnMap(this.treasuresInput);
-        this.treasureService.setTreasuresFoundOnMap(0);
-        this.treasureService.resetTreasuresCollected(this.treasureCatalog);
-        this.canvasDrawingService.drawTreasureMap(this.map, this.imageCatalog);
-        this.canvasDrawingService.drawPortal(this.map, this.imageCatalog);
-        this.canvasDrawingService.drawUser(this.map, this.imageCatalog);
-        this.canvasDrawingService.focusCanvas();
+        
+        resolve(this.map);
       })
+
+    }))
+        await Promise.all(promiseArray);
+        return this.map;
+  }
+
+  public async generatePlayerStartingLocation() {
+    //console.log(JSON.stringify(this.map));
+    const promiseArray = [];
+    promiseArray.push(new Promise<Coordinate>(resolve => {
+      this.mapGeneratorService.getRandomPathCoordinates(this.map, 1)
+      .subscribe(data => {
+          this.map.mapMetadata.playerSpawnPoint = data[0];
+          
+          resolve(this.map.mapMetadata.playerSpawnPoint);
+        })
+
+      }))
+          await Promise.all(promiseArray);
+          return this.map.mapMetadata.playerSpawnPoint;
+  }
+
+  public async generateTreasureLocations() {
+    //console.log(JSON.stringify(this.map));
+    const promiseArray = [];
+    promiseArray.push(new Promise<Coordinate[]>(resolve => {
+      this.mapGeneratorService.getRandomPathCoordinates(this.map, this.treasuresInput)
+      .subscribe(data => {
+          this.map.mapMetadata.treasureSpawnPoints = data;
+
+          resolve(this.map.mapMetadata.treasureSpawnPoints);
+        })
+
+      }))
+          await Promise.all(promiseArray);
+          return this.map.mapMetadata.treasureSpawnPoints;
   }
 
   public async movePlayer(event:KeyboardEvent){
     //console.log(event);
-    switch (event.key) {
-      case 'w':
-        this.movementService.moveUp(this.map);
-        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
-        break;
-      case 'W':
-        this.movementService.moveUp(this.map);
-        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
-        break;
-      case 'a':
-        this.movementService.moveLeft(this.map);
-        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
-        break;
-      case 'A':
-        this.movementService.moveLeft(this.map);
-        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
-        break;
-      case 's':
-        this.movementService.moveDown(this.map);
-        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
-        break;
-      case 'S':
-        this.movementService.moveDown(this.map);
-        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
-        break;
-      case 'd':
-        this.movementService.moveRight(this.map);
-        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
-        break;
-      case 'D':
-        this.movementService.moveRight(this.map);
-        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
-        break;
-      case 'ArrowUp':
-        event.preventDefault();
-        this.movementService.moveUp(this.map);
-        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
-        break;
-      case 'ArrowLeft':
-        event.preventDefault();
-        this.movementService.moveLeft(this.map);
-        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
-        break;
-      case 'ArrowDown':
-        event.preventDefault();
-        this.movementService.moveDown(this.map);
-        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
-        break;
-      case 'ArrowRight':
-        event.preventDefault();
-        this.movementService.moveRight(this.map);
-        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
-        break;
-      case 'Enter':
-        event.preventDefault();
-        this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
-        break;
-      case 'p':
-        this.canvasDrawingService.drawProgressChart(this.map, this.treasureCatalog);
-        break;
-      case 'P':
-        this.canvasDrawingService.drawProgressChart(this.map, this.treasureCatalog);
-        break;
-      case ' ':
-        await this.movementService.processAction(this.map, this.imageCatalog, this.canvasDrawingService, this.treasureService);
-
-        if(this.treasureService.checkIfAllZodiacsCollected() == true) {
-          console.log("Starting ending sequence");
-        } else {
-          console.log("Still more Zodiacs to collect.");
-        }
-        break;
+    if(this.endingSequenceActive == false) {
+      switch (event.key) {
+        case 'w':
+          this.movementService.moveUp(this.map);
+          this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+          break;
+        case 'W':
+          this.movementService.moveUp(this.map);
+          this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+          break;
+        case 'a':
+          this.movementService.moveLeft(this.map);
+          this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+          break;
+        case 'A':
+          this.movementService.moveLeft(this.map);
+          this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+          break;
+        case 's':
+          this.movementService.moveDown(this.map);
+          this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+          break;
+        case 'S':
+          this.movementService.moveDown(this.map);
+          this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+          break;
+        case 'd':
+          this.movementService.moveRight(this.map);
+          this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+          break;
+        case 'D':
+          this.movementService.moveRight(this.map);
+          this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+          break;
+        case 'ArrowUp':
+          event.preventDefault();
+          this.movementService.moveUp(this.map);
+          this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+          break;
+        case 'ArrowLeft':
+          event.preventDefault();
+          this.movementService.moveLeft(this.map);
+          this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+          break;
+        case 'ArrowDown':
+          event.preventDefault();
+          this.movementService.moveDown(this.map);
+          this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+          break;
+        case 'ArrowRight':
+          event.preventDefault();
+          this.movementService.moveRight(this.map);
+          this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+          break;
+        case 'Enter':
+          event.preventDefault();
+          this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
+          break;
+        case 'p':
+          this.canvasDrawingService.drawProgressChart(this.map, this.treasureCatalog);
+          break;
+        case 'P':
+          this.canvasDrawingService.drawProgressChart(this.map, this.treasureCatalog);
+          break;
+        case ' ':
+          await this.movementService.processAction(this.map, this.imageCatalog, this.canvasDrawingService, this.treasureService, this.treasuresInput);
+  
+          if(this.treasureService.checkIfAllZodiacsCollected() == true) {
+            this.endingSequenceActive = true;
+            this.canvasDrawingService.drawEndingSequenceScene(this.endingSequenceImageCatalog[this.endingSequenceSceneNumber]);
+          }
+          break;
+      }
+    } else {
+      switch (event.key) {
+        case ' ':
+          if(this.endingSequenceImageCatalog[this.endingSequenceSceneNumber + 1] != undefined) {
+            this.endingSequenceSceneNumber++;
+            this.canvasDrawingService.drawEndingSequenceScene(this.endingSequenceImageCatalog[this.endingSequenceSceneNumber]);
+          }
+          break;
+        case 'Backspace':
+          if(this.endingSequenceImageCatalog[this.endingSequenceSceneNumber - 1] != undefined) {
+            this.endingSequenceSceneNumber--;
+            this.canvasDrawingService.drawEndingSequenceScene(this.endingSequenceImageCatalog[this.endingSequenceSceneNumber]);
+          }
+          break;
+      }
     }
+    
   }
 }

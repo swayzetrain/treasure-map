@@ -6,9 +6,9 @@ export class MapGeneratorRequest {
     width: number;
     maxTunnels: number;
     maxLength: number;
-    treasures?: number;
+    edgePostProcessingEnabled: boolean;
     seed?: number;
-    generateSpawnCoordinate: boolean;
-    spawnCoordinate?: Coordinate;
+    playerSpawnPoint?: Coordinate;
+    treasureSpawnPoints?: Coordinate[];
     portalCoordinate?: Coordinate;
 }
