@@ -11,4 +11,5 @@ export class MapGeneratorRequest {
     playerSpawnPoint?: Coordinate;
     treasureSpawnPoints?: Coordinate[];
     portalCoordinate?: Coordinate;
+    pathDugCoordinates?: Coordinate[];
 }

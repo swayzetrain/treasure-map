@@ -1,8 +1,7 @@
 import { Injectable } from "@angular/core";
+import { AudioDistanceCategory } from "../enum/AudioDistanceCategory";
 import { MapAlgorithmMapping } from "../enum/MapAlgorithm";
-import { PostProcessedTileType } from "../enum/PostProcessedTileType";
 import { TileCategory } from "../enum/TileCategory";
-import { TileType } from "../enum/TileType";
 import { TreasureCategory } from "../enum/TreasureCategory";
 import { Coordinate } from "../model/Coordinate";
 import { ImageCatalogEntry } from "../model/ImageCatalogEntry";
@@ -23,11 +22,6 @@ import { TreasureService } from "./treasure-service";
         this.mapGeneratorService.getRandomPathCoordinates(map, 1)
             .subscribe(data => {
             map.mapMetadata.portalCoordinate=data[0];
-            console.log("pre-portal category: " + map.mapData[map.mapMetadata.portalCoordinate.y][map.mapMetadata.portalCoordinate.x].tileCategory);
-            console.log("pre-portal type: " + map.mapData[map.mapMetadata.portalCoordinate.y][map.mapMetadata.portalCoordinate.x].postProcessedTileType);
-            map.mapData[map.mapMetadata.portalCoordinate.y][map.mapMetadata.portalCoordinate.x].postProcessedTileType = PostProcessedTileType.PORTAL;
-            console.log("post-portal category: " + map.mapData[map.mapMetadata.portalCoordinate.y][map.mapMetadata.portalCoordinate.x].tileCategory);
-            console.log("post-portal type: " + map.mapData[map.mapMetadata.portalCoordinate.y][map.mapMetadata.portalCoordinate.x].postProcessedTileType);
             canvasDrawingService.drawPortal(map, imageCatalog);
             })
     }
@@ -42,6 +36,7 @@ import { TreasureService } from "./treasure-service";
           .subscribe(data => {
             map.mapData=data.mapData;
             map.mapMetadata=data.mapMetadata;
+            map.mapMetadata.pathDugCoordinates = [];
             resolve(map);
           })
 
@@ -95,6 +90,7 @@ import { TreasureService } from "./treasure-service";
             return;
         } else {
             map.mapMetadata.playerSpawnPoint.y -= 1;
+            this.playAudioBasedOnDistanceFromTreasure(map);
         }
     }
 
@@ -113,6 +109,7 @@ import { TreasureService } from "./treasure-service";
             return;
         } else {
             map.mapMetadata.playerSpawnPoint.y += 1;
+            this.playAudioBasedOnDistanceFromTreasure(map);
         }
     }
 
@@ -129,6 +126,7 @@ import { TreasureService } from "./treasure-service";
             return;
         } else {
             map.mapMetadata.playerSpawnPoint.x -= 1;
+            this.playAudioBasedOnDistanceFromTreasure(map);
         }
     }
 
@@ -147,6 +145,7 @@ import { TreasureService } from "./treasure-service";
             return;
         } else {
             map.mapMetadata.playerSpawnPoint.x += 1;
+            this.playAudioBasedOnDistanceFromTreasure(map);
         }
     }
 
@@ -155,9 +154,13 @@ import { TreasureService } from "./treasure-service";
         var playerPostitionY = map.mapMetadata.playerSpawnPoint.y;
 
         if(map.mapMetadata.treasureSpawnPoints.find(x => x.x == playerPostitionX && x.y == playerPostitionY) != undefined) {
-            console.groupCollapsed("In there");
             //Update map to have a dug path image
-            map.mapData[playerPostitionY][playerPostitionX].postProcessedTileType = PostProcessedTileType.PATH_DUG;
+            var coordinate:Coordinate = {
+                x:playerPostitionX,
+                y:playerPostitionY
+            }
+            map.mapMetadata.pathDugCoordinates.push(coordinate);
+
             canvasDrawingService.clearDrawFocusCanvas(map, imageCatalog);
 
             //Get Treasure to be drawn and remove from TreasureCatalog
@@ -177,8 +180,7 @@ import { TreasureService } from "./treasure-service";
             }
 
             console.log("treasure spawn points: " + map.mapMetadata.treasureSpawnPoints.length);
-        } else if(map.mapData[playerPostitionY][playerPostitionX].postProcessedTileType == PostProcessedTileType.PORTAL) {
-            console.groupCollapsed("In here");
+        } else if(map.mapMetadata.portalCoordinate != undefined && (map.mapMetadata.playerSpawnPoint.x == map.mapMetadata.portalCoordinate.x && map.mapMetadata.playerSpawnPoint.y == map.mapMetadata.portalCoordinate.y)) {
             map = await this.generateTreasureMap(map, treasureService, canvasDrawingService, imageCatalog, treasuresInput);
             map.mapMetadata.playerSpawnPoint = await this.generatePlayerStartingLocation(map);
             map.mapMetadata.treasureSpawnPoints = await this.generateTreasureLocations(map, treasuresInput);
@@ -188,15 +190,68 @@ import { TreasureService } from "./treasure-service";
             canvasDrawingService.drawTreasureMap(map, imageCatalog);
             canvasDrawingService.drawPortal(map, imageCatalog);
             canvasDrawingService.drawUser(map, imageCatalog);
-            canvasDrawingService.drawTreasures(map,imageCatalog);
+            //canvasDrawingService.drawTreasures(map,imageCatalog);
             canvasDrawingService.focusCanvas();
 
         } else if(map.mapData[playerPostitionY][playerPostitionX].tileCategory == TileCategory.PATH){
             //Update map to have a dug path image
-            map.mapData[playerPostitionY][playerPostitionX].postProcessedTileType = PostProcessedTileType.PATH_DUG;
+            var coordinate:Coordinate = {
+                x:playerPostitionX,
+                y:playerPostitionY
+            }
+            map.mapMetadata.pathDugCoordinates.push(coordinate);
             canvasDrawingService.clearDrawFocusCanvas(map, imageCatalog);
             
         } 
+    }
+
+    public playAudioBasedOnDistanceFromTreasure(map:Map) {
+
+        var playerPostionX = map.mapMetadata.playerSpawnPoint.x;
+        var playerPostionY = map.mapMetadata.playerSpawnPoint.y;
+
+        var audioDistanceCategory: AudioDistanceCategory;
+        var distanceFromTreasure: number;
+
+        for(var entry in map.mapMetadata.treasureSpawnPoints) {
+            //abs(deltaX^2) + abs(deltaY^2) = distance^2
+            var deltaX = Math.abs(map.mapMetadata.treasureSpawnPoints[entry].x - playerPostionX);
+            var deltaY = Math.abs(map.mapMetadata.treasureSpawnPoints[entry].y - playerPostionY);
+
+            var distance = Math.sqrt(Math.pow(deltaX,2) + Math.pow(deltaY,2));
+
+            if(distanceFromTreasure == undefined) {
+                distanceFromTreasure = distance;
+                continue;
+            }
+
+            if (distance < distanceFromTreasure) {
+                distanceFromTreasure = distance;
+            }
+        }
+
+        if(distanceFromTreasure != undefined) {
+            console.log("distanceFromTreasure: " + distanceFromTreasure);
+
+            if(distanceFromTreasure > 7) {
+                audioDistanceCategory = AudioDistanceCategory.NOT_IN_RANGE
+            } else if(distanceFromTreasure > 5) {
+                audioDistanceCategory = AudioDistanceCategory.LONG_RANGE
+            } else if(distanceFromTreasure > 3) {
+                audioDistanceCategory = AudioDistanceCategory.MEDIUM_RANGE
+            } else if(distanceFromTreasure >= 1) {
+                audioDistanceCategory = AudioDistanceCategory.CLOSE_RANGE
+            } else {
+                audioDistanceCategory = AudioDistanceCategory.ON_TILE
+            }
+
+            let audio = new Audio();
+            audio.src = audioDistanceCategory;
+            audio.load();
+            audio.play();
+        }
+
+        
     }
 
   }

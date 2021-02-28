@@ -13,6 +13,7 @@ import { TreasureCatalogEntry } from './model/TreasureCatalogEntry';
 import { IntroDialogBodyComponent } from './intro-dialog-body/intro-dialog-body.component';
 import { EndingSequenceCatalogEntry } from './model/EndingSequenceCatalogEntry';
 import { Coordinate } from './model/Coordinate';
+import { AudioCatalogEntry } from './model/AudioCatalogEntry';
 
 @Component({
   selector: 'app-root',
@@ -59,7 +60,7 @@ export class AppComponent implements OnInit {
     this.treasureService.setTreasuresFoundOnMap(0);
     this.treasureService.resetTreasuresCollected(this.treasureCatalog);
     this.canvasDrawingService.drawTreasureMap(this.map, this.imageCatalog);
-    this.canvasDrawingService.drawTreasures(this.map, this.imageCatalog);
+    //this.canvasDrawingService.drawTreasures(this.map, this.imageCatalog);
     this.canvasDrawingService.drawPortal(this.map, this.imageCatalog);
     this.canvasDrawingService.drawUser(this.map, this.imageCatalog);
     this.canvasDrawingService.focusCanvas();
@@ -69,6 +70,21 @@ export class AppComponent implements OnInit {
     this.introDialog.open(IntroDialogBodyComponent, {panelClass: 'custom-modalbox'});
   }
 
+  public async resetProgress() {
+    this.map = await this.generateTreasureMap();
+    this.map.mapMetadata.playerSpawnPoint = await this.generatePlayerStartingLocation();
+    this.map.mapMetadata.treasureSpawnPoints = await this.generateTreasureLocations();
+    this.treasureService.setZodiacTreasureClaimedOnMap(false);
+    this.treasureService.setNumberTreasuresOnMap(this.treasuresInput);
+    this.treasureService.setTreasuresFoundOnMap(0);
+    this.treasureService.resetTreasuresCollected(this.treasureCatalog);
+    this.canvasDrawingService.drawTreasureMap(this.map, this.imageCatalog);
+    this.canvasDrawingService.drawPortal(this.map, this.imageCatalog);
+    this.canvasDrawingService.drawUser(this.map, this.imageCatalog);
+    //this.canvasDrawingService.drawTreasures(this.map, this.imageCatalog);
+    this.canvasDrawingService.focusCanvas();
+  }
+
   public async generateTreasureMap() {
     var request : MapGeneratorRequest = this.mapGeneratorService.generateRequest(this.mapAlgorithmInput, this.mapHeightInput, this.mapWidthInput, this.maxTunnelsInput, this.maxLengthInput);
     const promiseArray = [];
@@ -76,7 +92,7 @@ export class AppComponent implements OnInit {
     this.mapGeneratorService.getGeneratedMapArray(request)
     .subscribe(data => {
         this.map=data;
-        
+        this.map.mapMetadata.pathDugCoordinates = [];
         resolve(this.map);
       })
 
