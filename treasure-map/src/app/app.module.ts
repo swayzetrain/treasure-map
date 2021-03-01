@@ -8,11 +8,13 @@ import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { IntroDialogBodyComponent } from './intro-dialog-body/intro-dialog-body.component';
+import { ProgressTrackerComponent } from './progress-tracker/progress-tracker.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    IntroDialogBodyComponent
+    IntroDialogBodyComponent,
+    ProgressTrackerComponent
   ],
   imports: [
     BrowserModule,

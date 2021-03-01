@@ -11,9 +11,9 @@ import { MapGeneratorRequest } from './model/MapGeneratorRequest';
 import { TreasureService } from './service/treasure-service';
 import { TreasureCatalogEntry } from './model/TreasureCatalogEntry';
 import { IntroDialogBodyComponent } from './intro-dialog-body/intro-dialog-body.component';
+import { ProgressTrackerComponent } from './progress-tracker/progress-tracker.component';
 import { EndingSequenceCatalogEntry } from './model/EndingSequenceCatalogEntry';
 import { Coordinate } from './model/Coordinate';
-import { AudioCatalogEntry } from './model/AudioCatalogEntry';
 
 @Component({
   selector: 'app-root',
@@ -42,7 +42,7 @@ export class AppComponent implements OnInit {
   private endingSequenceImageCatalog : EndingSequenceCatalogEntry[];
   private treasureCatalog: TreasureCatalogEntry[];
 
-  constructor(private mapGeneratorService:MapGeneratorService, private canvasDrawingService:CanvasDrawingService, private imageService:ImageCatalogService, private movementService:MovementService, private treasureService:TreasureService, private introDialog: MatDialog) {}
+  constructor(private mapGeneratorService:MapGeneratorService, private canvasDrawingService:CanvasDrawingService, private imageService:ImageCatalogService, private movementService:MovementService, private treasureService:TreasureService, private introDialog: MatDialog, private progressDialog: MatDialog) {}
 
   async ngOnInit() {
     this.canvasDrawingService.drawLoadingCanvas(this.mapWidthInput, this.mapHeightInput);
@@ -68,6 +68,10 @@ export class AppComponent implements OnInit {
 
   openIntroDialog() {
     this.introDialog.open(IntroDialogBodyComponent, {panelClass: 'custom-modalbox'});
+  }
+
+  openProgressDialog() {
+    this.progressDialog.open(ProgressTrackerComponent, {panelClass: 'custom-modalbox', data: {map: this.map, treasureCatalog: this.treasureCatalog}});
   }
 
   public async resetProgress() {
@@ -194,10 +198,10 @@ export class AppComponent implements OnInit {
           this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
           break;
         case 'p':
-          this.canvasDrawingService.drawProgressChart(this.map, this.treasureCatalog);
+          this.openProgressDialog();
           break;
         case 'P':
-          this.canvasDrawingService.drawProgressChart(this.map, this.treasureCatalog);
+          this.openProgressDialog();
           break;
         case ' ':
           await this.movementService.processAction(this.map, this.imageCatalog, this.canvasDrawingService, this.treasureService, this.treasuresInput);

@@ -1,5 +1,4 @@
 import { Injectable } from "@angular/core";
-import { connectableObservableDescriptor } from "rxjs/internal/observable/ConnectableObservable";
 import { TreasureCategory } from "../enum/TreasureCategory";
 import { TreasureType } from "../enum/TreasureType";
 import { TreasureCatalogEntry } from "../model/TreasureCatalogEntry";
