@@ -25,57 +25,6 @@ import { TreasureService } from "./treasure-service";
             canvasDrawingService.drawPortal(map, imageCatalog);
             })
     }
-
-    public async generateTreasureMap(map:Map, treasureService: TreasureService, canvasDrawingService:CanvasDrawingService, imageCatalog: ImageCatalogEntry[], treasuresInput: number) : Promise<Map> {
-        const promiseArray = [];
-        
-        var request : MapGeneratorRequest = this.mapGeneratorService.generateRequest(MapAlgorithmMapping[0], map.mapMetadata.height, map.mapMetadata.width, map.mapMetadata.maxTunnels, map.mapMetadata.maxLength);
-
-        promiseArray.push(new Promise<Map>(resolve => {
-            this.mapGeneratorService.getGeneratedMapArray(request)
-          .subscribe(data => {
-            map.mapData=data.mapData;
-            map.mapMetadata=data.mapMetadata;
-            map.mapMetadata.pathDugCoordinates = [];
-            resolve(map);
-          })
-
-        }))
-            await Promise.all(promiseArray);
-            return map;
-    }
-
-    public async generatePlayerStartingLocation(map:Map) {
-        //console.log(JSON.stringify(this.map));
-        const promiseArray = [];
-        promiseArray.push(new Promise<Coordinate>(resolve => {
-          this.mapGeneratorService.getRandomPathCoordinates(map, 1)
-          .subscribe(data => {
-              map.mapMetadata.playerSpawnPoint = data[0];
-              
-              resolve(map.mapMetadata.playerSpawnPoint);
-            })
-    
-          }))
-              await Promise.all(promiseArray);
-              return map.mapMetadata.playerSpawnPoint;
-      }
-    
-      public async generateTreasureLocations(map:Map, treasuresInput:number) {
-        //console.log(JSON.stringify(this.map));
-        const promiseArray = [];
-        promiseArray.push(new Promise<Coordinate[]>(resolve => {
-          this.mapGeneratorService.getRandomPathCoordinates(map, treasuresInput)
-          .subscribe(data => {
-              map.mapMetadata.treasureSpawnPoints = data;
-    
-              resolve(map.mapMetadata.treasureSpawnPoints);
-            })
-    
-          }))
-              await Promise.all(promiseArray);
-              return map.mapMetadata.treasureSpawnPoints;
-      }
     
     public moveUp(map:Map) {
         var playerPostitionX = map.mapMetadata.playerSpawnPoint.x;
@@ -181,17 +130,16 @@ import { TreasureService } from "./treasure-service";
 
             console.log("treasure spawn points: " + map.mapMetadata.treasureSpawnPoints.length);
         } else if(map.mapMetadata.portalCoordinate != undefined && (map.mapMetadata.playerSpawnPoint.x == map.mapMetadata.portalCoordinate.x && map.mapMetadata.playerSpawnPoint.y == map.mapMetadata.portalCoordinate.y)) {
-            map = await this.generateTreasureMap(map, treasureService, canvasDrawingService, imageCatalog, treasuresInput);
-            map.mapMetadata.playerSpawnPoint = await this.generatePlayerStartingLocation(map);
-            map.mapMetadata.treasureSpawnPoints = await this.generateTreasureLocations(map, treasuresInput);
+            map = await this.mapGeneratorService.generateTreasureMap(map, MapAlgorithmMapping[0], map.mapMetadata.height, map.mapMetadata.width, map.mapMetadata.maxTunnels, map.mapMetadata.maxLength);
+            map.mapMetadata.playerSpawnPoint = await this.mapGeneratorService.generatePlayerStartingLocation(map);
+            map.mapMetadata.treasureSpawnPoints = await this.mapGeneratorService.generateTreasureLocations(map, treasuresInput);
+
             treasureService.setZodiacTreasureClaimedOnMap(false);
             treasureService.setNumberTreasuresOnMap(treasuresInput);
             treasureService.setTreasuresFoundOnMap(0);
-            canvasDrawingService.drawTreasureMap(map, imageCatalog);
-            canvasDrawingService.drawPortal(map, imageCatalog);
-            canvasDrawingService.drawUser(map, imageCatalog);
+
+            canvasDrawingService.clearDrawFocusCanvas(map, imageCatalog);
             //canvasDrawingService.drawTreasures(map,imageCatalog);
-            canvasDrawingService.focusCanvas();
 
         } else if(map.mapData[playerPostitionY][playerPostitionX].tileCategory == TileCategory.PATH){
             //Update map to have a dug path image
@@ -201,7 +149,6 @@ import { TreasureService } from "./treasure-service";
             }
             map.mapMetadata.pathDugCoordinates.push(coordinate);
             canvasDrawingService.clearDrawFocusCanvas(map, imageCatalog);
-            
         } 
     }
 

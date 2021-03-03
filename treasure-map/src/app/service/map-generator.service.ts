@@ -4,8 +4,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { MapGeneratorRequest } from '../model/MapGeneratorRequest';
 import { Map } from '../model/Map';
 
-import { MapAlgorithm } from '../enum/MapAlgorithm';
+import { MapAlgorithm, MapAlgorithmMapping } from '../enum/MapAlgorithm';
 import { MapDataPoint } from '../model/MapDataPoint';
+import { TreasureService } from './treasure-service';
+import { CanvasDrawingService } from './canvas-drawing-service';
+import { Coordinate } from '../model/Coordinate';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +32,7 @@ export class MapGeneratorService {
         };
         break;
     }
+    console.log(JSON.stringify(requestBody));
     return requestBody;
   }
 
@@ -61,5 +65,57 @@ export class MapGeneratorService {
     params = params.append('quantity', quantity.toString());
 
     return this.httpClient.post(URL, JSON.stringify(requestBody), { 'headers': headers, params: params});
+  }
+
+  public async generateTreasureMap(map:Map, mapAlgorithmInput:any, mapHeight:number, mapWidth:number, mapMaxTunnels:number, mapMaxLength:number) : Promise<Map> {
+    const promiseArray = [];
+    
+    var request : MapGeneratorRequest = this.generateRequest(mapAlgorithmInput, mapHeight, mapWidth, mapMaxTunnels, mapMaxLength);
+
+    console.log(JSON.stringify(request));
+    promiseArray.push(new Promise<Map>(resolve => {
+        this.getGeneratedMapArray(request)
+      .subscribe(data => {
+        map.mapData=data.mapData;
+        map.mapMetadata=data.mapMetadata;
+        map.mapMetadata.pathDugCoordinates = [];
+        resolve(map);
+      })
+
+    }))
+        await Promise.all(promiseArray);
+        return map;
+  }
+
+  public async generatePlayerStartingLocation(map:Map) {
+    //console.log(JSON.stringify(this.map));
+    const promiseArray = [];
+    promiseArray.push(new Promise<Coordinate>(resolve => {
+      this.getRandomPathCoordinates(map, 1)
+      .subscribe(data => {
+          map.mapMetadata.playerSpawnPoint = data[0];
+          
+          resolve(map.mapMetadata.playerSpawnPoint);
+        })
+
+      }))
+          await Promise.all(promiseArray);
+          return map.mapMetadata.playerSpawnPoint;
+  }
+
+  public async generateTreasureLocations(map:Map, treasuresInput:number) {
+    //console.log(JSON.stringify(this.map));
+    const promiseArray = [];
+    promiseArray.push(new Promise<Coordinate[]>(resolve => {
+      this.getRandomPathCoordinates(map, treasuresInput)
+      .subscribe(data => {
+          map.mapMetadata.treasureSpawnPoints = data;
+
+          resolve(map.mapMetadata.treasureSpawnPoints);
+        })
+
+      }))
+          await Promise.all(promiseArray);
+          return map.mapMetadata.treasureSpawnPoints;
   }
 }

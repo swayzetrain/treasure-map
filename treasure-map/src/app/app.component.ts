@@ -25,18 +25,19 @@ export class AppComponent implements OnInit {
 
   public endingSequenceActive: boolean = false;
   public endingSequenceSceneNumber: number = 0;
-  public map: Map;
+  public map: Map = new Map;
   public treasureMap: string[][];
 
   keys = Object.keys;
   mapAlgorithmValues = MapAlgorithmMapping;
 
+  // Set Map Generation Inputs based on screen size
   public mapAlgorithmInput = this.mapAlgorithmValues[0];
-  public mapHeightInput : number = 40;
-  public mapWidthInput : number = 75;
-  public maxTunnelsInput : number = 450;
-  public maxLengthInput : number = 20;
-  public treasuresInput : number = 10;
+  public mapHeightInput : number = Math.floor((window.screen.height / 30) * .86);
+  public mapWidthInput : number = Math.floor((window.screen.width / 30) * .98);
+  public maxTunnelsInput : number = Math.floor(((window.screen.height / 30 * .86) + (window.screen.width / 30 * .98)) * 6);
+  public maxLengthInput : number = Math.floor(((window.screen.height / 30 * .86) + (window.screen.width / 30 * .98)) / 10);
+  public treasuresInput : number = Math.floor(((window.screen.height / 30 * .86) + (window.screen.width / 30 * .98)) / 9);
 
   private imageCatalog: ImageCatalogEntry[];
   private endingSequenceImageCatalog : EndingSequenceCatalogEntry[];
@@ -45,25 +46,25 @@ export class AppComponent implements OnInit {
   constructor(private mapGeneratorService:MapGeneratorService, private canvasDrawingService:CanvasDrawingService, private imageService:ImageCatalogService, private movementService:MovementService, private treasureService:TreasureService, private introDialog: MatDialog, private progressDialog: MatDialog) {}
 
   async ngOnInit() {
+    document.body.classList.add('bg-img');
     this.canvasDrawingService.drawLoadingCanvas(this.mapWidthInput, this.mapHeightInput);
+
+    this.treasureService.setZodiacTreasureClaimedOnMap(false);
     this.treasureService.setNumberTreasuresOnMap(this.treasuresInput);
     this.treasureService.setTreasuresFoundOnMap(0);
-    document.body.classList.add('bg-img');
+    this.treasureService.resetTreasuresCollected(this.treasureCatalog);
+
     this.imageCatalog = await this.imageService.loadImages();
     this.endingSequenceImageCatalog = await this.imageService.loadEndingSequenceImages();
     this.treasureCatalog = await this.treasureService.loadTreasureImages();
     this.openIntroDialog();
-    this.map = await this.generateTreasureMap();
-    this.map.mapMetadata.playerSpawnPoint = await this.generatePlayerStartingLocation();
-    this.map.mapMetadata.treasureSpawnPoints = await this.generateTreasureLocations();
-    this.treasureService.setNumberTreasuresOnMap(this.treasuresInput);
-    this.treasureService.setTreasuresFoundOnMap(0);
-    this.treasureService.resetTreasuresCollected(this.treasureCatalog);
-    this.canvasDrawingService.drawTreasureMap(this.map, this.imageCatalog);
+    
+    this.map = await this.mapGeneratorService.generateTreasureMap(this.map, this.mapAlgorithmInput, this.mapHeightInput, this.mapWidthInput, this.maxTunnelsInput, this.maxLengthInput);
+    this.map.mapMetadata.playerSpawnPoint = await this.mapGeneratorService.generatePlayerStartingLocation(this.map);
+    this.map.mapMetadata.treasureSpawnPoints = await this.mapGeneratorService.generateTreasureLocations(this.map, this.treasuresInput);
+    
+    this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
     //this.canvasDrawingService.drawTreasures(this.map, this.imageCatalog);
-    this.canvasDrawingService.drawPortal(this.map, this.imageCatalog);
-    this.canvasDrawingService.drawUser(this.map, this.imageCatalog);
-    this.canvasDrawingService.focusCanvas();
   }
 
   openIntroDialog() {
@@ -75,67 +76,20 @@ export class AppComponent implements OnInit {
   }
 
   public async resetProgress() {
-    this.map = await this.generateTreasureMap();
-    this.map.mapMetadata.playerSpawnPoint = await this.generatePlayerStartingLocation();
-    this.map.mapMetadata.treasureSpawnPoints = await this.generateTreasureLocations();
+    this.map = await this.mapGeneratorService.generateTreasureMap(this.map, this.mapAlgorithmInput, this.mapHeightInput, this.mapWidthInput, this.maxTunnelsInput, this.maxLengthInput);
+    this.map.mapMetadata.playerSpawnPoint = await this.mapGeneratorService.generatePlayerStartingLocation(this.map);
+    this.map.mapMetadata.treasureSpawnPoints = await this.mapGeneratorService.generateTreasureLocations(this.map, this.treasuresInput);
+
     this.treasureService.setZodiacTreasureClaimedOnMap(false);
     this.treasureService.setNumberTreasuresOnMap(this.treasuresInput);
     this.treasureService.setTreasuresFoundOnMap(0);
     this.treasureService.resetTreasuresCollected(this.treasureCatalog);
-    this.canvasDrawingService.drawTreasureMap(this.map, this.imageCatalog);
-    this.canvasDrawingService.drawPortal(this.map, this.imageCatalog);
-    this.canvasDrawingService.drawUser(this.map, this.imageCatalog);
+
+    this.canvasDrawingService.clearDrawFocusCanvas(this.map, this.imageCatalog);
     //this.canvasDrawingService.drawTreasures(this.map, this.imageCatalog);
-    this.canvasDrawingService.focusCanvas();
   }
 
-  public async generateTreasureMap() {
-    var request : MapGeneratorRequest = this.mapGeneratorService.generateRequest(this.mapAlgorithmInput, this.mapHeightInput, this.mapWidthInput, this.maxTunnelsInput, this.maxLengthInput);
-    const promiseArray = [];
-    promiseArray.push(new Promise<Map>(resolve => {
-    this.mapGeneratorService.getGeneratedMapArray(request)
-    .subscribe(data => {
-        this.map=data;
-        this.map.mapMetadata.pathDugCoordinates = [];
-        resolve(this.map);
-      })
-
-    }))
-        await Promise.all(promiseArray);
-        return this.map;
-  }
-
-  public async generatePlayerStartingLocation() {
-    //console.log(JSON.stringify(this.map));
-    const promiseArray = [];
-    promiseArray.push(new Promise<Coordinate>(resolve => {
-      this.mapGeneratorService.getRandomPathCoordinates(this.map, 1)
-      .subscribe(data => {
-          this.map.mapMetadata.playerSpawnPoint = data[0];
-          
-          resolve(this.map.mapMetadata.playerSpawnPoint);
-        })
-
-      }))
-          await Promise.all(promiseArray);
-          return this.map.mapMetadata.playerSpawnPoint;
-  }
-
-  public async generateTreasureLocations() {
-    //console.log(JSON.stringify(this.map));
-    const promiseArray = [];
-    promiseArray.push(new Promise<Coordinate[]>(resolve => {
-      this.mapGeneratorService.getRandomPathCoordinates(this.map, this.treasuresInput)
-      .subscribe(data => {
-          this.map.mapMetadata.treasureSpawnPoints = data;
-
-          resolve(this.map.mapMetadata.treasureSpawnPoints);
-        })
-
-      }))
-          await Promise.all(promiseArray);
-          return this.map.mapMetadata.treasureSpawnPoints;
-  }
+  
 
   public async movePlayer(event:KeyboardEvent){
     //console.log(event);
