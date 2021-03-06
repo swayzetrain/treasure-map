@@ -6,7 +6,6 @@ import { TreasureCategory } from "../enum/TreasureCategory";
 import { Coordinate } from "../model/Coordinate";
 import { ImageCatalogEntry } from "../model/ImageCatalogEntry";
 import { Map } from '../model/Map';
-import { MapGeneratorRequest } from "../model/MapGeneratorRequest";
 import { CanvasDrawingService } from "./canvas-drawing-service";
 import { MapGeneratorService } from "./map-generator.service";
 import { TreasureService } from "./treasure-service";
@@ -39,6 +38,7 @@ import { TreasureService } from "./treasure-service";
             return;
         } else {
             map.mapMetadata.playerSpawnPoint.y -= 1;
+            map.mapMetadata.playerStance += 1;
             this.playAudioBasedOnDistanceFromTreasure(map);
         }
     }
@@ -58,6 +58,7 @@ import { TreasureService } from "./treasure-service";
             return;
         } else {
             map.mapMetadata.playerSpawnPoint.y += 1;
+            map.mapMetadata.playerStance += 1;
             this.playAudioBasedOnDistanceFromTreasure(map);
         }
     }
@@ -75,6 +76,7 @@ import { TreasureService } from "./treasure-service";
             return;
         } else {
             map.mapMetadata.playerSpawnPoint.x -= 1;
+            map.mapMetadata.playerStance += 1;
             this.playAudioBasedOnDistanceFromTreasure(map);
         }
     }
@@ -94,6 +96,7 @@ import { TreasureService } from "./treasure-service";
             return;
         } else {
             map.mapMetadata.playerSpawnPoint.x += 1;
+            map.mapMetadata.playerStance += 1;
             this.playAudioBasedOnDistanceFromTreasure(map);
         }
     }

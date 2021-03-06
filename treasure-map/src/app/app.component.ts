@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import {MatDialog } from '@angular/material/dialog';
 import { MapGeneratorService } from './service/map-generator.service';
 import { Map } from './model/Map';
 import { CanvasDrawingService } from './service/canvas-drawing-service';
@@ -7,13 +7,11 @@ import { ImageCatalogService } from './service/image-catalog-service';
 import { ImageCatalogEntry } from './model/ImageCatalogEntry';
 import { MovementService } from './service/movement-service';
 import { MapAlgorithmMapping } from './enum/MapAlgorithm';
-import { MapGeneratorRequest } from './model/MapGeneratorRequest';
 import { TreasureService } from './service/treasure-service';
 import { TreasureCatalogEntry } from './model/TreasureCatalogEntry';
 import { IntroDialogBodyComponent } from './intro-dialog-body/intro-dialog-body.component';
 import { ProgressTrackerComponent } from './progress-tracker/progress-tracker.component';
 import { EndingSequenceCatalogEntry } from './model/EndingSequenceCatalogEntry';
-import { Coordinate } from './model/Coordinate';
 
 @Component({
   selector: 'app-root',

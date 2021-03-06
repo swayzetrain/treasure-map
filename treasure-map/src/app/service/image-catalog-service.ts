@@ -71,10 +71,11 @@ export class ImageCatalogService {
         {id: 60, sourceLocation:'assets/images/30x30_sand_br_edge_ul_corner.png', postProcessedTileType: PostProcessedTileType.RIGHT_BOTTOM_EDGE_LEFT_UPPER_CORNER_PATH, image: new Image()},
         {id: 61, sourceLocation:'assets/images/30x30_sand_ul_ur_br_corner.png', postProcessedTileType: PostProcessedTileType.LEFT_UPPER_RIGHT_UPPER_RIGHT_BOTTOM_CORNERS_PATH, image: new Image()},
         {id: 62, sourceLocation:'assets/images/30x30_sand_ul_ur_bl_corner.png', postProcessedTileType: PostProcessedTileType.LEFT_UPPER_RIGHT_UPPER_LEFT_BOTTOM_CORNERS_PATH, image: new Image()},
-        {id: 18, sourceLocation:'assets/images/30x30_sand_dug.png', postProcessedTileType: PostProcessedTileType.PATH_DUG, image: new Image()},
-        {id: 20, sourceLocation:'assets/images/30x30_billcipher.png', postProcessedTileType: PostProcessedTileType.PLAYER, image: new Image()},
-        {id: 21, sourceLocation:'assets/images/30x30_Portal_teal.png', postProcessedTileType: PostProcessedTileType.PORTAL, image: new Image()},
-        {id: 19, sourceLocation:'assets/images/30x30_treasure.png', postProcessedTileType: PostProcessedTileType.TREASURE, image: new Image()}
+        {id: 70, sourceLocation:'assets/images/30x30_sand_dug.png', postProcessedTileType: PostProcessedTileType.PATH_DUG, image: new Image()},
+        {id: 80, sourceLocation:'assets/images/30x30_billcipher.png', postProcessedTileType: PostProcessedTileType.PLAYER_1, image: new Image()},
+        {id: 81, sourceLocation:'assets/images/30x30_billcipher_2.png', postProcessedTileType: PostProcessedTileType.PLAYER_2, image: new Image()},
+        {id: 900, sourceLocation:'assets/images/30x30_Portal_teal.png', postProcessedTileType: PostProcessedTileType.PORTAL, image: new Image()},
+        {id: 100, sourceLocation:'assets/images/30x30_treasure.png', postProcessedTileType: PostProcessedTileType.TREASURE, image: new Image()}
     ];
 
     private endingSequenceImageCatalog : EndingSequenceCatalogEntry[] = [

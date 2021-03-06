@@ -92,7 +92,12 @@ export class CanvasDrawingService {
       var x = map.mapMetadata.playerSpawnPoint.x * 30
       var y = map.mapMetadata.playerSpawnPoint.y * 30
 
-      ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.PLAYER).image, x, y);
+      if(map.mapMetadata.playerStance % 2 == 0) {
+        ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.PLAYER_1).image, x, y);
+      } else {
+        ctx.drawImage(imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.PLAYER_2).image, x, y);
+      }
+      
 
     }
   }
@@ -149,13 +154,13 @@ export class CanvasDrawingService {
       var playerHeight = map.mapMetadata.playerSpawnPoint.y * 30;
       var playerWidth = map.mapMetadata.playerSpawnPoint.x * 30;
 
-      var x = (playerWidth + (imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.PLAYER).image.width / 2)) - (treasureCatalogEntry.imageSmall.width / 2);
+      var x = (playerWidth + (imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.PLAYER_1).image.width / 2)) - (treasureCatalogEntry.imageSmall.width / 2);
       var y = 0;
 
       if (playerHeight >= treasureCatalogEntry.imageSmall.height) {
         y = playerHeight - treasureCatalogEntry.imageSmall.height;
       } else {
-        y = playerHeight + (imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.PLAYER).image.height);
+        y = playerHeight + (imageCatalog.find(x => x.postProcessedTileType == PostProcessedTileType.PLAYER_1).image.height);
       }
 
       ctx.drawImage(treasureCatalogEntry.imageSmall, x, y);

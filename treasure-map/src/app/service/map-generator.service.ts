@@ -4,10 +4,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { MapGeneratorRequest } from '../model/MapGeneratorRequest';
 import { Map } from '../model/Map';
 
-import { MapAlgorithm, MapAlgorithmMapping } from '../enum/MapAlgorithm';
+import { MapAlgorithm } from '../enum/MapAlgorithm';
 import { MapDataPoint } from '../model/MapDataPoint';
-import { TreasureService } from './treasure-service';
-import { CanvasDrawingService } from './canvas-drawing-service';
 import { Coordinate } from '../model/Coordinate';
 
 @Injectable({
@@ -94,6 +92,7 @@ export class MapGeneratorService {
       this.getRandomPathCoordinates(map, 1)
       .subscribe(data => {
           map.mapMetadata.playerSpawnPoint = data[0];
+          map.mapMetadata.playerStance = 0;
           
           resolve(map.mapMetadata.playerSpawnPoint);
         })
