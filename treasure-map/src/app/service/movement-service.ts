@@ -163,42 +163,45 @@ import { TreasureService } from "./treasure-service";
         var audioDistanceCategory: AudioDistanceCategory;
         var distanceFromTreasure: number;
 
-        for(var entry in map.mapMetadata.treasureSpawnPoints) {
-            //abs(deltaX^2) + abs(deltaY^2) = distance^2
-            var deltaX = Math.abs(map.mapMetadata.treasureSpawnPoints[entry].x - playerPostionX);
-            var deltaY = Math.abs(map.mapMetadata.treasureSpawnPoints[entry].y - playerPostionY);
+        if(map.mapMetadata.treasureSpawnPoints.length > 0) {
 
-            var distance = Math.sqrt(Math.pow(deltaX,2) + Math.pow(deltaY,2));
+            for(var entry in map.mapMetadata.treasureSpawnPoints) {
+                //abs(deltaX^2) + abs(deltaY^2) = distance^2
+                var deltaX = Math.abs(map.mapMetadata.treasureSpawnPoints[entry].x - playerPostionX);
+                var deltaY = Math.abs(map.mapMetadata.treasureSpawnPoints[entry].y - playerPostionY);
 
-            if(distanceFromTreasure == undefined) {
-                distanceFromTreasure = distance;
-                continue;
+                var distance = Math.sqrt(Math.pow(deltaX,2) + Math.pow(deltaY,2));
+                
+                if(distanceFromTreasure == undefined) {
+                    distanceFromTreasure = distance;
+                    continue;
+                }
+
+                if (distance < distanceFromTreasure) {
+                    distanceFromTreasure = distance;
+                }
             }
 
-            if (distance < distanceFromTreasure) {
-                distanceFromTreasure = distance;
+            if(distanceFromTreasure != undefined) {
+                //console.log("distanceFromTreasure: " + distanceFromTreasure);
+
+                if(distanceFromTreasure > 7) {
+                    audioDistanceCategory = AudioDistanceCategory.NOT_IN_RANGE
+                } else if(distanceFromTreasure > 5) {
+                    audioDistanceCategory = AudioDistanceCategory.LONG_RANGE
+                } else if(distanceFromTreasure > 3) {
+                    audioDistanceCategory = AudioDistanceCategory.MEDIUM_RANGE
+                } else if(distanceFromTreasure >= 1) {
+                    audioDistanceCategory = AudioDistanceCategory.CLOSE_RANGE
+                } else {
+                    audioDistanceCategory = AudioDistanceCategory.ON_TILE
+                }
+
+                let audio = new Audio();
+                audio.src = audioDistanceCategory;
+                audio.load();
+                audio.play();
             }
-        }
-
-        if(distanceFromTreasure != undefined) {
-            console.log("distanceFromTreasure: " + distanceFromTreasure);
-
-            if(distanceFromTreasure > 7) {
-                audioDistanceCategory = AudioDistanceCategory.NOT_IN_RANGE
-            } else if(distanceFromTreasure > 5) {
-                audioDistanceCategory = AudioDistanceCategory.LONG_RANGE
-            } else if(distanceFromTreasure > 3) {
-                audioDistanceCategory = AudioDistanceCategory.MEDIUM_RANGE
-            } else if(distanceFromTreasure >= 1) {
-                audioDistanceCategory = AudioDistanceCategory.CLOSE_RANGE
-            } else {
-                audioDistanceCategory = AudioDistanceCategory.ON_TILE
-            }
-
-            let audio = new Audio();
-            audio.src = audioDistanceCategory;
-            audio.load();
-            audio.play();
         }
 
         
